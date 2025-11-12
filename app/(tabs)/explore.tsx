@@ -1,15 +1,17 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 
-import { Collapsible } from '@/components/ui/collapsible';
-import { ExternalLink } from '@/components/external-link';
+import { HelloWave } from '@/components/hello-wave';
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Button } from '@/components/ui/button';
+import { Chip } from '@/components/ui/chip';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Input } from '@/components/ui/input';
 import { Fonts } from '@/constants/theme';
 
 export default function TabTwoScreen() {
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
@@ -27,73 +29,57 @@ export default function TabTwoScreen() {
           style={{
             fontFamily: Fonts.rounded,
           }}>
-          Explore
+          Components
         </ThemedText>
       </ThemedView>
-      <ThemedText>This app includes example code to help you get started.</ThemedText>
-      <Collapsible title="File-based routing">
-        <ThemedText>
-          This app has two screens:{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">app/(tabs)/explore.tsx</ThemedText>
-        </ThemedText>
-        <ThemedText>
-          The layout file in <ThemedText type="defaultSemiBold">app/(tabs)/_layout.tsx</ThemedText>{' '}
-          sets up the tab navigator.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/router/introduction">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Android, iOS, and web support">
-        <ThemedText>
-          You can open this project on Android, iOS, and the web. To open the web version, press{' '}
-          <ThemedText type="defaultSemiBold">w</ThemedText> in the terminal running this project.
-        </ThemedText>
-      </Collapsible>
-      <Collapsible title="Images">
-        <ThemedText>
-          For static images, you can use the <ThemedText type="defaultSemiBold">@2x</ThemedText> and{' '}
-          <ThemedText type="defaultSemiBold">@3x</ThemedText> suffixes to provide files for
-          different screen densities
-        </ThemedText>
-        <Image
-          source={require('@/assets/images/react-logo.png')}
-          style={{ width: 100, height: 100, alignSelf: 'center' }}
-        />
-        <ExternalLink href="https://reactnative.dev/docs/images">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Light and dark mode components">
-        <ThemedText>
-          This template has light and dark mode support. The{' '}
-          <ThemedText type="defaultSemiBold">useColorScheme()</ThemedText> hook lets you inspect
-          what the user&apos;s current color scheme is, and so you can adjust UI colors accordingly.
-        </ThemedText>
-        <ExternalLink href="https://docs.expo.dev/develop/user-interface/color-themes/">
-          <ThemedText type="link">Learn more</ThemedText>
-        </ExternalLink>
-      </Collapsible>
-      <Collapsible title="Animations">
-        <ThemedText>
-          This template includes an example of an animated component. The{' '}
-          <ThemedText type="defaultSemiBold">components/HelloWave.tsx</ThemedText> component uses
-          the powerful{' '}
-          <ThemedText type="defaultSemiBold" style={{ fontFamily: Fonts.mono }}>
-            react-native-reanimated
-          </ThemedText>{' '}
-          library to create a waving hand animation.
-        </ThemedText>
-        {Platform.select({
-          ios: (
-            <ThemedText>
-              The <ThemedText type="defaultSemiBold">components/ParallaxScrollView.tsx</ThemedText>{' '}
-              component provides a parallax effect for the header image.
-            </ThemedText>
-          ),
-        })}
-      </Collapsible>
+      <ThemedText style={styles.introText}>
+        A quick preview of shared UI components. Use these as building blocks across the app.
+      </ThemedText>
+
+      <ThemedView style={styles.componentList}>
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">Button</ThemedText>
+          <ThemedText style={styles.cardDescription}>Reusable gradient button with primary and secondary variants.</ThemedText>
+          <ThemedView style={styles.cardPreviewRow}>
+            <Button onPress={() => {}} style={styles.previewButton}>
+              <ThemedText type="defaultSemiBold" style={styles.previewLabel}>Primary</ThemedText>
+            </Button>
+            <Button variant="secondary" onPress={() => {}} style={[styles.previewButton, styles.previewSecondary]}>
+              <ThemedText type="defaultSemiBold" style={styles.previewLabel}>Secondary</ThemedText>
+            </Button>
+          </ThemedView>
+        </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">HelloWave</ThemedText>
+          <ThemedText style={styles.cardDescription}>Small animated waving component used in onboarding and headers.</ThemedText>
+          <ThemedView style={styles.cardPreviewRow}>
+            <HelloWave />
+          </ThemedView>
+        </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">Input</ThemedText>
+          <ThemedText style={styles.cardDescription}>Text field with label and underline — controlled or uncontrolled.</ThemedText>
+          <ThemedView style={styles.cardPreviewRow}>
+            <Input label="Title" placeholder="Enter title" style={{ width: 300 }} />
+          </ThemedView>
+          <ThemedView style={{ marginTop: 10 }}>
+            <Input label="Notes" placeholder="Write a short note..." variant="multiline" numberOfLines={4} style={{ width: 300 }} />
+          </ThemedView>
+        </ThemedView>
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">Tag / Chip</ThemedText>
+          <ThemedText style={styles.cardDescription}>Small labeled chips for content categories and quick actions.</ThemedText>
+          <ThemedView style={styles.chipColumn}>
+            <Chip variant="video" label="VIDEO" style={styles.chipItem} />
+            <Chip variant="article" label="ARTICLE" style={styles.chipItem} />
+            <Chip variant="module" label="MODULE" style={styles.chipItem} />
+            <Chip variant="mood" label="MOOD" style={styles.chipItem} />
+          </ThemedView>
+        </ThemedView>
+      </ThemedView>
+
     </ParallaxScrollView>
   );
 }
@@ -108,5 +94,62 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     gap: 8,
+  },
+  introText: {
+    marginVertical: 12,
+    color: '#333333',
+  },
+  componentList: {
+    marginBottom: 12,
+  },
+  card: {
+    padding: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#ECECEC',
+    marginBottom: 12,
+  },
+  cardDescription: {
+    marginTop: 6,
+    marginBottom: 10,
+    color: '#6B6B6B',
+  },
+  cardPreviewRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  chipColumn: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  chipItem: {
+    marginBottom: 12,
+  },
+  previewButton: {
+    marginRight: 8,
+  },
+  previewSecondary: {
+    // allow a smaller visual size for secondary preview
+  },
+  previewLabel: {
+    color: '#1C1C1C',
+  },
+  actionButton: {
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
+  actionButtonLabel: {
+    textAlign: 'center',
+    color: '#1C1C1C',
+  },
+  secondaryButton: {
+    marginTop: 8,
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
+  secondaryButtonLabel: {
+    textAlign: 'center',
+    color: '#1C1C1C',
   },
 });
