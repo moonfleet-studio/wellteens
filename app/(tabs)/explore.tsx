@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Fonts } from '@/constants/theme';
 
@@ -78,6 +79,17 @@ export default function TabTwoScreen() {
             <Chip variant="module" label="MODULE" style={styles.chipItem} />
             <Chip variant="mood" label="MOOD" style={styles.chipItem} />
           </ThemedView>
+        </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">Checkbox</ThemedText>
+          <ThemedText style={styles.cardDescription}>A checkbox with a clickable label — tapping the label toggles the box.</ThemedText>
+          <Checkbox
+            label={
+              'Akceptuję warunki korzystania z aplikacji Wellteens oraz zgadzam się z polityką prywatności'
+            }
+            style={{ marginTop: 8, alignSelf: 'flex-start', maxWidth: '100%' }}
+          />
         </ThemedView>
 
         <ThemedView style={styles.card}>
