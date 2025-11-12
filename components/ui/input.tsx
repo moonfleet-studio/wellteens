@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { StyleSheet, TextInput, View, ViewStyle, TextInputProps, NativeSyntheticEvent, TextInputContentSizeChangeEventData } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
+import React, { useState } from 'react';
+import { NativeSyntheticEvent, StyleSheet, TextInput, TextInputContentSizeChangeEventData, TextInputProps, View, ViewStyle } from 'react-native';
 
 type InputVariant = 'default' | 'multiline' | 'outlined' | 'filled';
 

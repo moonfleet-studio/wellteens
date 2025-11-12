@@ -1,6 +1,6 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { ReactNode } from 'react';
 import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 type ButtonVariant = 'primary' | 'secondary';
 

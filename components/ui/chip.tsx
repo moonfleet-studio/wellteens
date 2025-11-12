@@ -1,7 +1,7 @@
-import React from 'react';
-import { Pressable, StyleSheet, ViewStyle, StyleProp } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { ThemedText } from '@/components/themed-text';
+import { LinearGradient } from 'expo-linear-gradient';
+import React from 'react';
+import { Pressable, StyleProp, StyleSheet, ViewStyle } from 'react-native';
 
 export type ChipVariant = 'video' | 'article' | 'module' | 'mood';
 
