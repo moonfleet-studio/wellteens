@@ -5,6 +5,7 @@ import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Input } from '@/components/ui/input';
@@ -76,6 +77,34 @@ export default function TabTwoScreen() {
             <Chip variant="article" label="ARTICLE" style={styles.chipItem} />
             <Chip variant="module" label="MODULE" style={styles.chipItem} />
             <Chip variant="mood" label="MOOD" style={styles.chipItem} />
+          </ThemedView>
+        </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">Card</ThemedText>
+          <ThemedText style={styles.cardDescription}>Image card with overlaid alert badge and excerpt.</ThemedText>
+          <ThemedView style={{ gap: 12 }}>
+            <Card
+              image={require('@/assets/images/partial-react-logo.png')}
+              title="Your mood"
+              description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
+              alertVariant="video"
+              alertLabel="VIDEO"
+            />
+            <Card
+              image={require('@/assets/images/partial-react-logo.png')}
+              title="Your mood"
+              description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
+              alertVariant="article"
+              alertLabel="ARTICLE"
+            />
+            <Card
+              image={require('@/assets/images/partial-react-logo.png')}
+              title="Your mood"
+              description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
+              alertVariant="module"
+              alertLabel="MODULE"
+            />
           </ThemedView>
         </ThemedView>
       </ThemedView>
