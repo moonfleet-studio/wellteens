@@ -52,7 +52,7 @@ export function Chip({ variant = 'article', label, onPress, style }: ChipProps) 
 const styles = StyleSheet.create({
   gradient: {
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     borderRadius: 24,
     alignItems: 'center',
     justifyContent: 'center',
@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   moodWrap: {
     paddingVertical: 6,
-    paddingHorizontal: 12,
+    paddingHorizontal: 8,
     borderRadius: 24,
     borderWidth: 1,
     borderColor: '#D0D0D0',
