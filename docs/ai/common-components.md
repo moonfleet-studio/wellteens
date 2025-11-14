@@ -9,3 +9,16 @@ _Current components:_
  - Chip(label: string, variant?: 'video' | 'article' | 'module' | 'mood', onPress?: () => void, style?: ViewStyle): Small labeled tag/chip with gradient variants for content categories and an outlined mood variant.
  - Alert(label?: string, variant?: 'video' | 'article' | 'module', style?: ViewStyle): Small pill used inside Card to indicate content type; gradient variants.
  - Card(image: ImageSourcePropType, title: string, description?: string, alertVariant?: 'video'|'article'|'module', alertLabel?: string): Image-based card with overlay content and an Alert badge.
+
+ - IconSymbol(name: string, size?: number, color?: string, style?: StyleProp<TextStyle>): Unified icon provider that returns branded TSX icon components from `components/ui/icons/*` (Logo, Pencil2, Play, Reader, Plus) and falls back to MaterialIcons for unknown names. Use this instead of importing SVGs directly.
+
+ - icons/*: Folder `components/ui/icons/` contains the TSX React Native SVG components for branded icons (Logo.tsx, Pencil2.tsx, Play.tsx, Reader.tsx, Plus.tsx). Prefer these components to raw .svg imports to avoid bundler/transform issues across platforms.
+
+Example usage:
+
+```tsx
+import { IconSymbol } from '@/components/ui/icon-symbol';
+
+// in render
+<IconSymbol name="Play" size={28} color="#333" />
+```

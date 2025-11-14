@@ -1,111 +1,196 @@
-import { Image } from "expo-image";
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from 'react-native';
 
-import { HelloWave } from "@/components/hello-wave";
-import ParallaxScrollView from "@/components/parallax-scroll-view";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { Link } from "expo-router";
+import { HelloWave } from '@/components/hello-wave';
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Chip } from '@/components/ui/chip';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Input } from '@/components/ui/input';
+import TabScreen from '@/components/ui/tab-screen';
+import { Fonts } from '@/constants/theme';
 
-export default function HomeScreen() {
+export default function TabTwoScreen() {
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
+    <TabScreen
+      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
       headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
+        <IconSymbol
+          size={310}
+          color="#808080"
+          name={'Play' as any}
+          style={styles.headerImage}
         />
-      }
-    >
+      }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="default">WellTeens</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
+        <ThemedText
+          type="title"
+          style={{
+            fontFamily: Fonts.rounded,
+          }}>
+          Components
         </ThemedText>
       </ThemedView>
-      <ThemedView style={styles.card}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction
-              title="Action"
-              icon="cube"
-              onPress={() => alert("Action pressed")}
-            />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert("Share pressed")}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert("Delete pressed")}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+      <ThemedText style={styles.introText}>
+        A quick preview of shared UI components. Use these as building blocks across the app.
+      </ThemedText>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
+      <ThemedView style={styles.componentList}>
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">Button</ThemedText>
+          <ThemedText style={styles.cardDescription}>Reusable gradient button with primary and secondary variants.</ThemedText>
+          <ThemedView style={styles.cardPreviewRow}>
+            <Button onPress={() => {}} style={styles.previewButton}>
+              <ThemedText type="defaultSemiBold" style={styles.previewLabel}>Primary</ThemedText>
+            </Button>
+            <Button variant="secondary" onPress={() => {}} style={[styles.previewButton, styles.previewSecondary]}>
+              <ThemedText type="defaultSemiBold" style={styles.previewLabel}>Secondary</ThemedText>
+            </Button>
+          </ThemedView>
+        </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">HelloWave</ThemedText>
+          <ThemedText style={styles.cardDescription}>Small animated waving component used in onboarding and headers.</ThemedText>
+          <ThemedView style={styles.cardPreviewRow}>
+            <HelloWave />
+          </ThemedView>
+        </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">Input</ThemedText>
+          <ThemedText style={styles.cardDescription}>Text field with label and underline — controlled or uncontrolled.</ThemedText>
+          <ThemedView style={styles.cardPreviewRow}>
+            <Input label="Title" placeholder="Enter title" style={{ width: 300 }} />
+          </ThemedView>
+          <ThemedView style={{ marginTop: 10 }}>
+            <Input label="Notes" placeholder="Write a short note..." variant="multiline" numberOfLines={4} style={{ width: 300 }} />
+          </ThemedView>
+        </ThemedView>
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">Tag / Chip</ThemedText>
+          <ThemedText style={styles.cardDescription}>Small labeled chips for content categories and quick actions.</ThemedText>
+          <ThemedView style={styles.chipColumn}>
+            <Chip variant="video" label="VIDEO" style={styles.chipItem} />
+            <Chip variant="article" label="ARTICLE" style={styles.chipItem} />
+            <Chip variant="module" label="MODULE" style={styles.chipItem} />
+            <Chip variant="mood" label="MOOD" style={styles.chipItem} />
+          </ThemedView>
+        </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">Checkbox</ThemedText>
+          <ThemedText style={styles.cardDescription}>A checkbox with a clickable label — tapping the label toggles the box.</ThemedText>
+          <Checkbox
+            label={
+              'Akceptuję warunki korzystania z aplikacji Wellteens oraz zgadzam się z polityką prywatności'
+            }
+            style={{ marginTop: 8, alignSelf: 'flex-start', maxWidth: '100%' }}
+          />
+        </ThemedView>
+
+        <ThemedView style={styles.card}>
+          <ThemedText type="defaultSemiBold">Card</ThemedText>
+          <ThemedText style={styles.cardDescription}>Image card with overlaid alert badge and excerpt.</ThemedText>
+          <ThemedView style={{ gap: 12 }}>
+            <Card
+              image={require('@/assets/images/partial-react-logo.png')}
+              title="Your mood"
+              description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
+              alertVariant="video"
+              alertLabel="VIDEO"
+            />
+            <Card
+              image={require('@/assets/images/partial-react-logo.png')}
+              title="Your mood"
+              description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
+              alertVariant="article"
+              alertLabel="ARTICLE"
+            />
+            <Card
+              image={require('@/assets/images/partial-react-logo.png')}
+              title="Your mood"
+              description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
+              alertVariant="module"
+              alertLabel="MODULE"
+            />
+          </ThemedView>
+        </ThemedView>
       </ThemedView>
-      <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">
-            npm run reset-project
-          </ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+
+    </TabScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  headerImage: {
+    color: '#808080',
+    bottom: -90,
+    left: -35,
+    position: 'absolute',
+  },
   titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
     gap: 8,
+  },
+  introText: {
+    marginVertical: 12,
+    color: '#333333',
+  },
+  componentList: {
+    marginBottom: 12,
   },
   card: {
+    padding: 12,
+    borderRadius: 12,
     borderWidth: 1,
-    padding: 8,
-    borderRadius: 8,
-    borderColor: "grey",
-    gap: 8,
-    marginBottom: 8,
+    borderColor: '#ECECEC',
+    marginBottom: 12,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
+  cardDescription: {
+    marginTop: 6,
+    marginBottom: 10,
+    color: '#6B6B6B',
+  },
+  cardPreviewRow: {
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+  },
+  chipColumn: {
+    flexDirection: 'column',
+    alignItems: 'flex-start',
+  },
+  chipItem: {
+    marginBottom: 12,
+  },
+  previewButton: {
+    marginRight: 8,
+  },
+  previewSecondary: {
+    // allow a smaller visual size for secondary preview
+  },
+  previewLabel: {
+    color: '#1C1C1C',
+  },
+  actionButton: {
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
+  actionButtonLabel: {
+    textAlign: 'center',
+    color: '#1C1C1C',
+  },
+  secondaryButton: {
+    marginTop: 8,
+    marginBottom: 16,
+    alignSelf: 'flex-start',
+  },
+  secondaryButtonLabel: {
+    textAlign: 'center',
+    color: '#1C1C1C',
   },
 });
