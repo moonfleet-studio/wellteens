@@ -8,7 +8,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedView } from '@/components/themed-view';
-import { FooterSlot } from '@/components/ui/footer-context';
+import Footer from '@/components/ui/footer';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
@@ -60,7 +60,7 @@ export default function ParallaxScrollView({
       </Animated.View>
       <ThemedView style={styles.content}>
         {children}
-        <FooterSlot />
+        <Footer />
       </ThemedView>
     </Animated.ScrollView>
   );
