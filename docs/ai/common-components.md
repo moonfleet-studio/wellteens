@@ -12,7 +12,9 @@ _Current components:_
 
  - IconSymbol(name: string, size?: number, color?: string, style?: StyleProp<TextStyle>): Unified icon provider that returns branded TSX icon components from `components/ui/icons/*` (Logo, Pencil2, Play, Reader, Plus) and falls back to MaterialIcons for unknown names. Use this instead of importing SVGs directly.
 
- - icons/*: Folder `components/ui/icons/` contains the TSX React Native SVG components for branded icons (Logo.tsx, Pencil2.tsx, Play.tsx, Reader.tsx, Plus.tsx). Prefer these components to raw .svg imports to avoid bundler/transform issues across platforms.
+ - icons/*: Folder `components/ui/icons/` contains the TSX React Native SVG components for branded icons (Logo.tsx, Pencil2.tsx, Play.tsx, Reader.tsx, Plus.tsx, Profile.tsx). Prefer these components to raw .svg imports to avoid bundler/transform issues across platforms.
+
+ - NavigationTopBar(children?: ReactNode, includeSafeAreaInset?: boolean, style?: StyleProp<ViewStyle>, contentContainerStyle?: StyleProp<ViewStyle>): Curved, gradient navigation header that mirrors the design SVG while accounting for safe-area insets and accepting custom slot content.
 
 Example usage:
 
