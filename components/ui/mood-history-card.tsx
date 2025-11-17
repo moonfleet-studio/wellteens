@@ -19,8 +19,13 @@ import Svg, {
   Stop,
 } from 'react-native-svg';
 
+const CARD_HEIGHT = 150;
 const CARD_RADIUS = 28;
-const CHART_HEIGHT = 160;
+const TITLE_LINE_HEIGHT = 20;
+const TITLE_MARGIN_BOTTOM = 8;
+const TITLE_MAX_WIDTH = 154;
+const TITLE_MAX_WIDTH_WITH_ACCESSORY = 120;
+const CHART_HEIGHT = 90;
 const ENDPOINT_OFFSET = 16;
 const VALUE_MIN = 1;
 const VALUE_MAX = 5;
@@ -40,6 +45,7 @@ export type MoodHistoryCardProps = {
   data: MoodHistoryPoint[];
   title?: string;
   style?: StyleProp<ViewStyle>;
+  accessory?: React.ReactNode;
 };
 
 type ChartGeometry = {
@@ -53,6 +59,7 @@ export function MoodHistoryCard({
   data,
   title = 'Mood history',
   style,
+  accessory,
 }: MoodHistoryCardProps) {
   const [width, setWidth] = React.useState(0);
 
@@ -66,27 +73,24 @@ export function MoodHistoryCard({
       };
     }
 
-    const chartHeight = CHART_HEIGHT;
-    const verticalPadding = chartHeight * 0.15;
-    const usableHeight = chartHeight - verticalPadding * 2;
-
     const clampValue = (value: number) => {
       return Math.min(VALUE_MAX, Math.max(VALUE_MIN, value));
     };
 
     const normalize = (value: number) => {
       const ratio = (clampValue(value) - VALUE_MIN) / (VALUE_MAX - VALUE_MIN);
-      return chartHeight - verticalPadding - ratio * usableHeight;
+      return CHART_HEIGHT - ratio * (CHART_HEIGHT * 0.7);
     };
 
     const maxX = Math.max(0, width - ENDPOINT_OFFSET);
     const areaOverflowLeft = Math.min(width * 0.35, 120);
+
     const points = data.map((point, index) => ({
       x: (maxX * index) / (data.length - 1),
       y: normalize(point.value),
     }));
 
-    const smoothing = 0.12;
+    const smoothing = 0.42;
 
     const cubicPath = points.reduce((acc, point, index, arr) => {
       if (index === 0) {
@@ -107,7 +111,7 @@ export function MoodHistoryCard({
     const firstPoint = points[0];
     const lastPoint = points[points.length - 1];
     const tailX = width;
-    const areaPath = `${cubicPath} L ${tailX} ${lastPoint.y} L ${tailX} ${chartHeight} L ${firstPoint.x - areaOverflowLeft} ${chartHeight} Z`;
+    const areaPath = `${cubicPath} L ${tailX} ${lastPoint.y} L ${tailX} ${CHART_HEIGHT} L ${firstPoint.x - areaOverflowLeft} ${CHART_HEIGHT} Z`;
 
     return {
       linePath: cubicPath,
@@ -160,68 +164,71 @@ export function MoodHistoryCard({
         ))}
       </Svg>
 
-      <Text style={styles.title}>{title}</Text>
-      <View style={styles.chartContainer} onLayout={handleLayout}>
-        {width > 0 && !showPlaceholder ? (
-          <Svg width={width} height={CHART_HEIGHT}>
-            <Defs>
-              <LinearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0%" stopColor="#45D0EE" stopOpacity={0.7} />
-                <Stop offset="100%" stopColor="#45D0EE" stopOpacity={0} />
-              </LinearGradient>
+      <View style={styles.content}>
+        <Text style={[styles.title, accessory ? styles.titleInset : null]}>{title}</Text>
+        <View style={styles.chartContainer} onLayout={handleLayout}>
+          {width > 0 && !showPlaceholder ? (
+            <Svg width={width} height={CHART_HEIGHT}>
+              <Defs>
+                <LinearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                  <Stop offset="0%" stopColor="#45D0EE" stopOpacity={0.5} />
+                  <Stop offset="100%" stopColor="#45D0EE" stopOpacity={0} />
+                </LinearGradient>
 
-              <ClipPath id="chartClip">
-                <Rect
-                  x={-chart.areaOverflowLeft}
-                  y={0}
-                  width={width + chart.areaOverflowLeft}
-                  height={CHART_HEIGHT}
-                />
-              </ClipPath>
-            </Defs>
+                <ClipPath id="chartClip">
+                  <Rect
+                    x={-chart.areaOverflowLeft}
+                    y={0}
+                    width={width + chart.areaOverflowLeft}
+                    height={CHART_HEIGHT}
+                  />
+                </ClipPath>
+              </Defs>
 
-            <G clipPath="url(#chartClip)">
-              {chart.areaPath ? (
-                <Path d={chart.areaPath} fill="url(#areaGradient)" />
-              ) : null}
+              <G clipPath="url(#chartClip)">
+                {chart.areaPath ? (
+                  <Path d={chart.areaPath} fill="url(#areaGradient)" />
+                ) : null}
 
-              {chart.linePath ? (
-                <Path
-                  d={chart.linePath}
-                  stroke="#07A5FF"
-                  strokeWidth={2}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  fill="none"
-                />
-              ) : null}
+                {chart.linePath ? (
+                  <Path
+                    d={chart.linePath}
+                    stroke="#07A5FF"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fill="none"
+                  />
+                ) : null}
 
-              {chart.lastPoint ? (
-                <Circle
-                  cx={chart.lastPoint.x}
-                  cy={chart.lastPoint.y}
-                  r={3.5}
-                  fill="#07A5FF"
-                />
-              ) : null}
-
-            </G>
-          </Svg>
-        ) : (
-          <View style={styles.placeholder}>
-            <Text style={styles.placeholderLabel}>
-              Add at least two mood entries to see your history.
-            </Text>
-          </View>
-        )}
+                {chart.lastPoint ? (
+                  <Circle
+                    cx={chart.lastPoint.x}
+                    cy={chart.lastPoint.y}
+                    r={3.5}
+                    fill="#07A5FF"
+                  />
+                ) : null}
+              </G>
+            </Svg>
+          ) : (
+            <View style={styles.placeholder}>
+              <Text style={styles.placeholderLabel}>
+                Add at least two mood entries to see your history.
+              </Text>
+            </View>
+          )}
+        </View>
       </View>
+
+      {accessory ? <View style={styles.accessorySlot}>{accessory}</View> : null}
     </ExpoLinearGradient>
   );
 }
 
 const styles = StyleSheet.create({
   wrapper: {
-    paddingVertical: 22,
+    height: CARD_HEIGHT,
     borderRadius: CARD_RADIUS,
     alignSelf: 'stretch',
     overflow: 'hidden',
@@ -231,23 +238,32 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 14 },
     elevation: 12,
     marginBottom: 16,
+    position: 'relative',
   },
   texture: {
     ...StyleSheet.absoluteFillObject,
+  },
+  content: {
+    flex: 1,
+    justifyContent: 'flex-start',
   },
   title: {
     fontSize: 16,
     fontWeight: '600',
     color: '#3A332D',
+    lineHeight: TITLE_LINE_HEIGHT,
+    marginBottom: TITLE_MARGIN_BOTTOM,
+    maxWidth: TITLE_MAX_WIDTH,
     marginLeft: 16,
-    marginBottom: 8,
-    zIndex: 1,
+    marginTop: 16,
+  },
+  titleInset: {
+    maxWidth: TITLE_MAX_WIDTH_WITH_ACCESSORY,
   },
   chartContainer: {
     width: '100%',
     height: CHART_HEIGHT,
     overflow: 'hidden',
-    position: 'relative',
   },
   placeholder: {
     flex: 1,
@@ -267,5 +283,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     width: 27,
     zIndex: 1,
+  },
+  accessorySlot: {
+    position: 'absolute',
+    top: 4,
+    bottom: 4,
+    right: 4,
+    alignItems: 'stretch',
+    justifyContent: 'center',
   },
 });

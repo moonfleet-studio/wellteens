@@ -97,9 +97,9 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     gap: 16,
+    paddingHorizontal: 24,
   },
   scrollContent: {
-    paddingHorizontal: 32,
     paddingVertical: 24,
     flexGrow: 1,
   },

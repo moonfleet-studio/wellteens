@@ -9,8 +9,18 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Chip } from '@/components/ui/chip';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Input } from '@/components/ui/input';
+import { MoodHistoryPoint } from '@/components/ui/mood-history-card';
+import { MoodQuickAddCard } from '@/components/ui/mood-quick-add-card';
 import TabScreen from '@/components/ui/tab-screen';
 import { Fonts } from '@/constants/theme';
+
+const moodHomeHistory: MoodHistoryPoint[] = [ // mock data for the mood quick add card 
+  { date: '2025-01-02', value: 2.2 },
+  { date: '2025-01-04', value: 4.8 },
+  { date: '2025-01-06', value: 3.6 },
+  { date: '2025-01-09', value: 3.4 },
+  { date: '2025-01-12', value: 4.2 },
+];
 
 export default function TabTwoScreen() {
 
@@ -25,6 +35,7 @@ export default function TabTwoScreen() {
           style={styles.headerImage}
         />
       }>
+      <MoodQuickAddCard data={moodHomeHistory} style={styles.quickAddCard} />
       <ThemedView style={styles.titleContainer}>
         <ThemedText
           type="title"
@@ -142,6 +153,9 @@ const styles = StyleSheet.create({
   },
   componentList: {
     marginBottom: 12,
+  },
+  quickAddCard: {
+    marginBottom: 24,
   },
   card: {
     padding: 12,
