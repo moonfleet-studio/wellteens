@@ -1,8 +1,9 @@
 import { ThemedText } from '@/components/themed-text';
+import { IconSymbol } from '@/components/ui/icon-symbol';
 import React, { useState } from 'react';
 import { NativeSyntheticEvent, StyleSheet, TextInput, TextInputContentSizeChangeEventData, TextInputProps, View, ViewStyle } from 'react-native';
 
-type InputVariant = 'default' | 'multiline' | 'outlined' | 'filled';
+type InputVariant = 'default' | 'multiline' | 'outlined' | 'filled' | 'search';
 
 interface InputProps extends Omit<TextInputProps, 'style'> {
   label?: string;
@@ -32,6 +33,7 @@ export function Input({
   const current = isControlled ? value! : internal;
 
   const isMultiline = variant === 'multiline' || multiline === true;
+  const isSearch = variant === 'search';
 
   function handleContentSizeChange(e: NativeSyntheticEvent<TextInputContentSizeChangeEventData>) {
     if (!isMultiline) return;
@@ -39,29 +41,41 @@ export function Input({
     setHeight(h);
   }
 
+  const inputElement = (
+    <TextInput
+      style={[
+        styles.input,
+        variant === 'outlined' && styles.outlined,
+        variant === 'filled' && styles.filled,
+        isSearch && styles.searchInput,
+        isMultiline && { height },
+      ]}
+      value={current}
+      onChangeText={(t) => {
+        if (!isControlled) setInternal(t);
+        onChangeText?.(t);
+      }}
+      placeholder={placeholder}
+      placeholderTextColor="rgba(0,0,0,0.4)"
+      multiline={isMultiline}
+      numberOfLines={isMultiline ? numberOfLines : undefined}
+      textAlignVertical={isMultiline ? 'top' : 'center'}
+      onContentSizeChange={handleContentSizeChange}
+      {...rest}
+    />
+  );
+
   return (
     <View style={[styles.container, style as any]}>
       {label ? <ThemedText style={styles.label}>{label}</ThemedText> : null}
-      <TextInput
-        style={[
-          styles.input,
-          variant === 'outlined' && styles.outlined,
-          variant === 'filled' && styles.filled,
-          isMultiline && { height },
-        ]}
-        value={current}
-        onChangeText={(t) => {
-          if (!isControlled) setInternal(t);
-          onChangeText?.(t);
-        }}
-        placeholder={placeholder}
-        placeholderTextColor="#9E9E9E"
-        multiline={isMultiline}
-        numberOfLines={isMultiline ? numberOfLines : undefined}
-        textAlignVertical={isMultiline ? 'top' : 'center'}
-        onContentSizeChange={handleContentSizeChange}
-        {...rest}
-      />
+      {isSearch ? (
+        <View style={styles.searchWrapper}>
+          <IconSymbol name="search" size={20} color="#7B7B7B" />
+          {inputElement}
+        </View>
+      ) : (
+        inputElement
+      )}
       {variant === 'default' && <View style={styles.underline} />}
     </View>
   );
@@ -97,5 +111,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#F7F7F7',
     borderRadius: 8,
     paddingHorizontal: 8,
+  },
+  searchWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F1F1F1',
+    borderRadius: 24,
+    paddingHorizontal: 16,
+    minHeight: 50,
+  },
+  searchInput: {
+    flex: 1,
+    paddingHorizontal: 0,
+    paddingVertical: 8,
+    fontSize: 16,
   },
 });

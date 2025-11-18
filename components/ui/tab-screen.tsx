@@ -1,6 +1,6 @@
-import type { PropsWithChildren, ReactElement } from 'react';
+import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View, type StyleProp, type ViewStyle } from 'react-native';
+import { SafeAreaView, ScrollView, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedReaction,
@@ -10,9 +10,11 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 
+import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import Footer from '@/components/ui/footer';
 import { NavigationTopBar } from '@/components/ui/navigation-topbar';
+import { Fonts } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
@@ -23,6 +25,11 @@ type TabScreenProps = PropsWithChildren<{
   headerImage?: ReactElement;
   headerBackgroundColor?: { light: string; dark: string };
   contentContainerStyle?: StyleProp<ViewStyle>;
+  collapsibleHeader?: boolean;
+  collapsibleHeaderHeight?: number;
+  headerContent?: ReactNode;
+  title?: string;
+  titleStyle?: StyleProp<TextStyle>;
 }>;
 
 export default function TabScreen({
@@ -30,6 +37,11 @@ export default function TabScreen({
   headerImage,
   headerBackgroundColor = { light: '#FFFFFF', dark: '#1C1C1C' },
   contentContainerStyle,
+  collapsibleHeader = false,
+  collapsibleHeaderHeight,
+  headerContent,
+  title,
+  titleStyle,
 }: TabScreenProps) {
   const footer = <Footer />;
   const backgroundColor = useThemeColor({}, 'background');
@@ -37,26 +49,39 @@ export default function TabScreen({
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollOffset(scrollRef);
   const navHiddenOffset = useSharedValue(0);
+  const hasCollapsibleHeader = collapsibleHeader || Boolean(headerImage);
+  const headerHeight = hasCollapsibleHeader
+    ? collapsibleHeaderHeight ?? (headerImage ? HEADER_HEIGHT : NAVIGATION_BAR_HEIGHT)
+    : 0;
+  const safeHeaderHeight = headerHeight > 0 ? headerHeight : 1;
+
   const headerAnimatedStyle = useAnimatedStyle(() => {
     return {
       transform: [
         {
           translateY: interpolate(
             scrollOffset.value,
-            [-HEADER_HEIGHT, 0, HEADER_HEIGHT],
-            [-HEADER_HEIGHT / 2, 0, HEADER_HEIGHT * 0.75]
+            [-safeHeaderHeight, 0, safeHeaderHeight],
+            [-safeHeaderHeight / 2, 0, safeHeaderHeight * 0.75]
           ),
         },
         {
-          scale: interpolate(scrollOffset.value, [-HEADER_HEIGHT, 0, HEADER_HEIGHT], [2, 1, 1]),
+          scale: interpolate(scrollOffset.value, [-safeHeaderHeight, 0, safeHeaderHeight], [2, 1, 1]),
         },
       ],
     };
   });
+
   const content = (
     <ThemedView
-      style={[styles.content, { paddingTop: headerImage ? 16 : NAVIGATION_BAR_HEIGHT + 16 }, contentContainerStyle]}
+      style={[styles.content, { paddingTop: hasCollapsibleHeader ? 16 : NAVIGATION_BAR_HEIGHT + 16 }, contentContainerStyle]}
     >
+      {headerContent ? <View style={styles.headerContent}>{headerContent}</View> : null}
+      {title ? (
+        <ThemedText type="title" style={[styles.tabTitle, titleStyle]} accessibilityRole="header">
+          {title}
+        </ThemedText>
+      ) : null}
       {children}
       {footer}
     </ThemedView>
@@ -84,7 +109,7 @@ export default function TabScreen({
     </Animated.View>
   );
 
-  if (headerImage) {
+  if (hasCollapsibleHeader) {
     return (
       <SafeAreaView style={styles.root}>
         <View pointerEvents="box-none" style={styles.navBarContainer}>
@@ -98,10 +123,10 @@ export default function TabScreen({
           <Animated.View
             style={[
               styles.header,
-              { backgroundColor: headerBackgroundColor[colorScheme], overflow: 'hidden' },
+              { height: headerHeight, backgroundColor: headerBackgroundColor[colorScheme], overflow: 'hidden' },
               headerAnimatedStyle,
             ]}>
-            {headerImage}
+            {headerImage ?? null}
           </Animated.View>
           {content}
         </Animated.ScrollView>
@@ -127,13 +152,22 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
   },
   header: {
-    height: HEADER_HEIGHT,
     marginTop: NAVIGATION_BAR_HEIGHT,
   },
   content: {
     flex: 1,
-    gap: 16,
+    gap: 20,
     paddingHorizontal: 24,
+  },
+  headerContent: {
+    width: '100%',
+  },
+  tabTitle: {
+    marginTop: 16,
+    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: '600',
+    fontFamily: Fonts.rounded,
   },
   scrollContent: {
     paddingVertical: 24,

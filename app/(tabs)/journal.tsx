@@ -19,11 +19,9 @@ const mockMoodHistory: MoodHistoryPoint[] = [
 
 export default function Journal() {
   return (
-    <TabScreen>
+    <TabScreen title="Journal" headerContent={<MoodHistoryCard data={mockMoodHistory} />}>
       <ThemedView style={styles.container}>
-        <MoodHistoryCard data={mockMoodHistory} />
-
-        <ThemedText type="title" style={styles.sectionTitle}>
+        <ThemedText style={styles.sectionTitle}>
           Journal (placeholder)
         </ThemedText>
         <ThemedText style={styles.helperText}>

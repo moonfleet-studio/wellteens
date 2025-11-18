@@ -12,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { MoodHistoryPoint } from '@/components/ui/mood-history-card';
 import { MoodQuickAddCard } from '@/components/ui/mood-quick-add-card';
 import TabScreen from '@/components/ui/tab-screen';
-import { Fonts } from '@/constants/theme';
 
 const moodHomeHistory: MoodHistoryPoint[] = [ // mock data for the mood quick add card 
   { date: '2025-01-02', value: 2.2 },
@@ -26,6 +25,8 @@ export default function TabTwoScreen() {
 
   return (
     <TabScreen
+      title="Components"
+      headerContent={<MoodQuickAddCard data={moodHomeHistory} style={styles.quickAddCard} />}
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
       headerImage={
         <IconSymbol
@@ -35,16 +36,6 @@ export default function TabTwoScreen() {
           style={styles.headerImage}
         />
       }>
-      <MoodQuickAddCard data={moodHomeHistory} style={styles.quickAddCard} />
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText
-          type="title"
-          style={{
-            fontFamily: Fonts.rounded,
-          }}>
-          Components
-        </ThemedText>
-      </ThemedView>
       <ThemedText style={styles.introText}>
         A quick preview of shared UI components. Use these as building blocks across the app.
       </ThemedText>
@@ -142,10 +133,6 @@ const styles = StyleSheet.create({
     bottom: -90,
     left: -35,
     position: 'absolute',
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
   },
   introText: {
     marginVertical: 12,

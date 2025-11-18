@@ -6,9 +6,9 @@ import { StyleSheet } from 'react-native';
 
 export default function Articles() {
   return (
-    <TabScreen>
+    <TabScreen title="Articles">
       <ThemedView style={styles.container}>
-        <ThemedText type="title">Articles (placeholder)</ThemedText>
+        <ThemedText>Articles (placeholder)</ThemedText>
       </ThemedView>
     </TabScreen>
   );

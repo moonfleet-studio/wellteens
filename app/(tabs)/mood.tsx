@@ -6,9 +6,9 @@ import { StyleSheet } from 'react-native';
 
 export default function Mood() {
   return (
-    <TabScreen>
+    <TabScreen title="Mood">
       <ThemedView style={styles.container}>
-        <ThemedText type="title">Mood (placeholder)</ThemedText>
+        <ThemedText>Mood (placeholder)</ThemedText>
       </ThemedView>
     </TabScreen>
   );

@@ -21,7 +21,6 @@ import Svg, {
 
 const CARD_HEIGHT = 150;
 const CARD_RADIUS = 28;
-const TITLE_LINE_HEIGHT = 20;
 const TITLE_MARGIN_BOTTOM = 8;
 const TITLE_MAX_WIDTH = 154;
 const TITLE_MAX_WIDTH_WITH_ACCESSORY = 120;
@@ -251,7 +250,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#3A332D',
-    lineHeight: TITLE_LINE_HEIGHT,
     marginBottom: TITLE_MARGIN_BOTTOM,
     maxWidth: TITLE_MAX_WIDTH,
     marginLeft: 16,
@@ -262,7 +260,6 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     width: '100%',
-    height: CHART_HEIGHT,
     overflow: 'hidden',
   },
   placeholder: {
@@ -289,7 +286,5 @@ const styles = StyleSheet.create({
     top: 4,
     bottom: 4,
     right: 4,
-    alignItems: 'stretch',
-    justifyContent: 'center',
   },
 });
