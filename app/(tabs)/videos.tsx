@@ -1,76 +1,18 @@
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import React, { useMemo, useState } from 'react';
-import { ImageBackground, StyleSheet, View } from 'react-native';
+import { ImageBackground, Pressable, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Chip } from '@/components/ui/chip';
 import { Input } from '@/components/ui/input';
 import TabScreen from '@/components/ui/tab-screen';
+import { VIDEO_LIBRARY, type VideoContent } from '@/constants/videos';
 
-type VideoContent = {
-  id: string;
-  title: string;
-  duration: string;
-  description: string;
-  image: string;
-};
-
-const VIDEOS: VideoContent[] = [
-  {
-    id: '1',
-    title: 'Your mood',
-    duration: '05:23',
-    description: 'Quick practices to pause, breathe, and notice what your body is trying to tell you.',
-    image: 'https://images.unsplash.com/photo-1504829857797-ddff29c27927?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: '2',
-    title: 'Grounding with friends',
-    duration: '04:11',
-    description: 'A walk-and-talk script to help your circle open up about how they are really doing.',
-    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: '3',
-    title: 'Morning reset',
-    duration: '03:45',
-    description: 'Gentle stretches plus mantras that set a calmer tone before classes begin.',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: '4',
-    title: 'Grounding with friends',
-    duration: '04:11',
-    description: 'A walk-and-talk script to help your circle open up about how they are really doing.',
-    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: '5',
-    title: 'Morning reset',
-    duration: '03:45',
-    description: 'Gentle stretches plus mantras that set a calmer tone before classes begin.',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: '6',
-    title: 'Grounding with friends',
-    duration: '04:11',
-    description: 'A walk-and-talk script to help your circle open up about how they are really doing.',
-    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
-  },
-  {
-    id: '7',
-    title: 'Morning reset',
-    duration: '03:45',
-    description: 'Gentle stretches plus mantras that set a calmer tone before classes begin.',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=900&q=80',
-  },
-];
-
-function VideoCard({ video }: { video: VideoContent }) {
+function VideoCard({ video, onPress }: { video: VideoContent; onPress: () => void }) {
   return (
-    <View style={styles.cardShadow}>
+    <Pressable onPress={onPress} accessibilityRole="button" style={styles.cardShadow}>
       <ImageBackground source={{ uri: video.image }} style={styles.cardImage} imageStyle={styles.cardImageRadius}>
         <LinearGradient colors={['rgba(0,0,0,0.05)', 'rgba(0,0,0,0.75)']} style={styles.cardOverlay}>
           <View style={styles.captionContainer}>
@@ -94,17 +36,18 @@ function VideoCard({ video }: { video: VideoContent }) {
           </View>
         </LinearGradient>
       </ImageBackground>
-    </View>
+    </Pressable>
   );
 }
 
 export default function TabTwoScreen() {
   const [query, setQuery] = useState('');
+  const router = useRouter();
 
   const filteredVideos = useMemo(() => {
     const trimmed = query.trim().toLowerCase();
-    if (!trimmed) return VIDEOS;
-    return VIDEOS.filter((video) =>
+    if (!trimmed) return VIDEO_LIBRARY;
+    return VIDEO_LIBRARY.filter((video) =>
       [video.title, video.description].some((field) => field.toLowerCase().includes(trimmed))
     );
   }, [query]);
@@ -125,7 +68,11 @@ export default function TabTwoScreen() {
       />
       <View style={styles.cardsContainer}>
         {filteredVideos.map((video) => (
-          <VideoCard key={video.id} video={video} />
+          <VideoCard
+            key={video.id}
+            video={video}
+            onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id } })}
+          />
         ))}
       </View>
     </TabScreen>
