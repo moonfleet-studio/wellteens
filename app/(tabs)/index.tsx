@@ -94,26 +94,26 @@ export default function TabTwoScreen() {
           />
         </ThemedView>
 
-        <ThemedView style={styles.card}>
+        <ThemedView >
           <ThemedText type="defaultSemiBold">Card</ThemedText>
           <ThemedText style={styles.cardDescription}>Image card with overlaid alert badge and excerpt.</ThemedText>
           <ThemedView style={{ gap: 12 }}>
             <Card
-              image={require('@/assets/images/partial-react-logo.png')}
+              image={{ uri: "https://images.unsplash.com/photo-1504829857797-ddff29c27927?auto=format&fit=crop&w=900&q=80" }}
               title="Your mood"
               description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
               alertVariant="video"
               alertLabel="VIDEO"
             />
             <Card
-              image={require('@/assets/images/partial-react-logo.png')}
+              image={{ uri: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80" }}
               title="Your mood"
               description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
               alertVariant="article"
               alertLabel="ARTICLE"
             />
             <Card
-              image={require('@/assets/images/partial-react-logo.png')}
+              image={{ uri: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80" }}
               title="Your mood"
               description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
               alertVariant="module"
@@ -145,11 +145,10 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   card: {
-    padding: 12,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: '#ECECEC',
-    marginBottom: 12,
+    marginBottom: 48,
   },
   cardDescription: {
     marginTop: 6,

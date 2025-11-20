@@ -1,22 +1,32 @@
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import Card from '@/components/ui/card';
 import TabScreen from '@/components/ui/tab-screen';
+import { ARTICLE_LIBRARY } from '@/constants/articles';
 import React from 'react';
-import { StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 export default function Articles() {
   return (
     <TabScreen title="Articles">
-      <ThemedView style={styles.container}>
-        <ThemedText>Articles (placeholder)</ThemedText>
-      </ThemedView>
+      <View style={styles.list}>
+        {ARTICLE_LIBRARY.map((article) => (
+          <Card
+            key={article.id}
+            image={article.image}
+            label={article.categoryLabel}
+            chipVariant="article"
+            title={article.title}
+            description={article.description}
+            layout="article"
+          />
+        ))}
+      </View>
     </TabScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 16,
+  list: {
+    width: '100%',
+    gap: 16,
   },
 });

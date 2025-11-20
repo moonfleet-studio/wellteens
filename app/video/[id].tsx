@@ -1,4 +1,4 @@
-import { Video, ResizeMode, type AVPlaybackStatus, VideoFullscreenUpdate } from 'expo-av';
+import { ResizeMode, Video, VideoFullscreenUpdate, type AVPlaybackStatus } from 'expo-av';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';

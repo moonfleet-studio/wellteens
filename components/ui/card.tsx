@@ -1,108 +1,187 @@
-import { ThemedText } from '@/components/themed-text';
-import { Image } from 'expo-image';
-import React from 'react';
-import { ImageSourcePropType, Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
-import { Alert } from './alert';
+import { BlurView } from "expo-blur";
+import { LinearGradient } from "expo-linear-gradient";
+import React from "react";
+import {
+  ImageBackground,
+  Pressable,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
+} from "react-native";
+
+import { ThemedText } from "@/components/themed-text";
+
+import { Chip, type ChipVariant } from "./chip";
 
 interface CardProps {
-  image: ImageSourcePropType;
+  image: string;
+  label: string;
+  chipVariant?: ChipVariant;
   title: string;
-  description?: string;
-  alertVariant?: 'video' | 'article' | 'module';
-  alertLabel?: string;
+  description: string;
+  meta?: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
+  layout?: "default" | "article";
 }
 
-export function Card({ image, title, description, alertVariant = 'video', alertLabel, onPress, style }: CardProps) {
-  // variant-aware styles for alert placement and text alignment
-  const variantAlertStyle = alertVariant === 'video'
-    ? styles.alertVideo
-    : alertVariant === 'article'
-      ? styles.alertArticle
-      : styles.alertModule;
-
-  const isLeftAligned = alertVariant === 'video' || alertVariant === 'article';
-  const titleTextStyle = [styles.cardTitle, isLeftAligned ? styles.textLeft : styles.textCenter];
-  const descTextStyle = [styles.cardDesc, isLeftAligned ? styles.textLeft : styles.textCenter];
-
-  const Content = (
-    <View style={[styles.container, style as any]}>
-      <Image source={image} style={styles.image} contentFit="cover" />
-      <View style={styles.overlayBox}>
-        <Alert variant={alertVariant} label={alertLabel} style={variantAlertStyle} />
-        <ThemedText type="title" style={titleTextStyle}>{title}</ThemedText>
-        {description ? <ThemedText style={descTextStyle}>{description}</ThemedText> : null}
-      </View>
+export function Card({
+  image,
+  label,
+  chipVariant = "article",
+  title,
+  description,
+  meta,
+  onPress,
+  style,
+  layout = "default",
+}: CardProps) {
+  const containerStyle: StyleProp<ViewStyle> = [styles.cardShadow, style];
+  const isArticleLayout = layout === "article";
+  const captionContainerStyle = [
+    styles.captionContainer,
+    isArticleLayout && styles.captionContainerArticle,
+  ];
+  const cardBody = (
+    <View style={containerStyle}>
+      <ImageBackground
+        source={{ uri: image }}
+        style={styles.cardImage}
+        imageStyle={styles.cardImageRadius}
+      >
+        <LinearGradient
+          colors={["rgba(0,0,0,0.05)", "rgba(0,0,0,0.75)"]}
+          style={styles.cardOverlay}
+        >
+          <View style={captionContainerStyle}>
+            <BlurView tint="light" intensity={8} style={styles.captionBlur} />
+            <LinearGradient
+              colors={["#FFFFFF", "rgba(255,255,255,0.5)"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 0, y: 1 }}
+              style={styles.captionGradient}
+            />
+            <View
+              style={[
+                styles.captionContent,
+                isArticleLayout && styles.captionContentArticle,
+              ]}
+            >
+              <View style={styles.captionMetaRow}>
+                <Chip variant={chipVariant} label={label} />
+                {meta ? (
+                  <ThemedText style={styles.captionMeta}>{meta}</ThemedText>
+                ) : (
+                  <View />
+                )}
+              </View>
+              <ThemedText style={styles.cardTitle}>{title}</ThemedText>
+              <ThemedText
+                style={[styles.cardDescription, isArticleLayout && styles.cardDescriptionArticle]}
+                numberOfLines={isArticleLayout ? 5 : 2}
+              >
+                {description}
+              </ThemedText>
+            </View>
+          </View>
+        </LinearGradient>
+      </ImageBackground>
     </View>
   );
 
   if (onPress) {
-    return <Pressable onPress={onPress}>{Content}</Pressable>;
+    return (
+      <Pressable onPress={onPress} accessibilityRole="button">
+        {cardBody}
+      </Pressable>
+    );
   }
 
-  return Content;
+  return cardBody;
 }
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    borderRadius: 12,
-    overflow: 'hidden',
-    backgroundColor: '#fff',
+  cardShadow: {
+    borderRadius: 24,
+    overflow: "hidden",
+    shadowColor: "#000000",
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 4,
+    width: "100%",
   },
-  image: {
-    width: '100%',
-    height: 220,
+  cardImage: {
+    height: 240,
+    width: "100%",
   },
-  overlayBox: {
-    position: 'absolute',
-    left: 16,
-    right: 16,
-    bottom: 18,
-    // allow the background to be slightly translucent so the image peeks through
-    backgroundColor: 'rgba(255,255,255,0.94)',
-    borderRadius: 16,
+  cardImageRadius: {
+    borderRadius: 20,
+  },
+  cardOverlay: {
+    flex: 1,
+    justifyContent: "flex-end",
+    padding: 4,
+    borderRadius: 20,
+  },
+  captionContainer: {
+    borderRadius: 20,
+    overflow: "hidden",
+    height: 96,
+    backgroundColor: "transparent",
+  },
+
+  captionBlur: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  captionGradient: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 20,
+  },
+  captionContent: {
+    flex: 1,
     paddingHorizontal: 16,
     paddingVertical: 12,
-    minHeight: 86,
-    // shadow
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    elevation: 3,
+    gap: 1,
+    justifyContent: "center",
   },
-  alertVideo: {
-    marginBottom: 8,
-    alignSelf: 'flex-start',
-    opacity: 0.95,
+  captionContentArticle: {
+    justifyContent: "flex-start",
+    paddingTop: 12,
   },
-  alertArticle: {
-    marginBottom: 8,
-    // align same as video by default
-    alignSelf: 'flex-start',
-    marginLeft: 0,
-    opacity: 0.95,
+  captionMetaRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 4,
   },
-  alertModule: {
-    marginBottom: 8,
-    alignSelf: 'center',
-    opacity: 0.95,
+  captionContainerArticle: {
+    height: "100%",
+    width: "60%",
+    alignSelf: "flex-start",
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "flex-start",
+  },
+  captionMeta: {
+    fontSize: 10,
+    fontWeight: "600",
+    color: "#1C1C1C",
   },
   cardTitle: {
-    marginTop: 2,
-    fontSize: 18,
+    fontSize: 16,
+    color: "#1C1C1C",
   },
-  cardDesc: {
-    marginTop: 6,
-    color: '#6B6B6B',
+  cardDescription: {
+    fontSize: 12,
+    fontWeight: "400",
+    color: "#4C4C4C",
   },
-  textLeft: {
-    textAlign: 'left',
-  },
-  textCenter: {
-    textAlign: 'center',
+  cardDescriptionArticle: {
+    fontSize: 16,
+    fontWeight: '400',
+    color: '#4C4C4C',
   },
 });
 
