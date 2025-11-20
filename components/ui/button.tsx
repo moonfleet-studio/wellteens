@@ -14,7 +14,7 @@ interface ButtonProps {
 
 const VARIANT_PRESETS: Record<ButtonVariant, { gradient: readonly [string, string]; contentStyle: ViewStyle }> = {
   primary: {
-    gradient: ['#FFD07D', '#FFEECF'],
+    gradient: ['#FFEECF', '#FFD07D'],
     contentStyle: {
       paddingVertical: 11,
       paddingHorizontal: 20,

@@ -23,7 +23,7 @@ interface CardProps {
   meta?: string;
   onPress?: () => void;
   style?: StyleProp<ViewStyle>;
-  layout?: "default" | "article";
+  layout?: "default" | "article" | "module";
 }
 
 export function Card({
@@ -39,6 +39,7 @@ export function Card({
 }: CardProps) {
   const containerStyle: StyleProp<ViewStyle> = [styles.cardShadow, style];
   const isArticleLayout = layout === "article";
+  const isModuleLayout = layout === "module";
   const captionContainerStyle = [
     styles.captionContainer,
     isArticleLayout && styles.captionContainerArticle,
@@ -66,6 +67,7 @@ export function Card({
               style={[
                 styles.captionContent,
                 isArticleLayout && styles.captionContentArticle,
+                isModuleLayout && styles.captionContentModule,
               ]}
             >
               <View style={styles.captionMetaRow}>
@@ -76,9 +78,13 @@ export function Card({
                   <View />
                 )}
               </View>
-              <ThemedText style={styles.cardTitle}>{title}</ThemedText>
+              <ThemedText style={[styles.cardTitle, isModuleLayout && styles.cardTitleModule]}>{title}</ThemedText>
               <ThemedText
-                style={[styles.cardDescription, isArticleLayout && styles.cardDescriptionArticle]}
+                style={[
+                  styles.cardDescription,
+                  isArticleLayout && styles.cardDescriptionArticle,
+                  isModuleLayout && styles.cardDescriptionModule,
+                ]}
                 numberOfLines={isArticleLayout ? 5 : 2}
               >
                 {description}
@@ -150,6 +156,12 @@ const styles = StyleSheet.create({
     justifyContent: "flex-start",
     paddingTop: 12,
   },
+  captionContentModule: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 8,
+    paddingHorizontal: 18,
+  },
   captionMetaRow: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -173,6 +185,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#1C1C1C",
   },
+  cardTitleModule: {
+    textAlign: 'center',
+  },
   cardDescription: {
     fontSize: 12,
     fontWeight: "400",
@@ -182,6 +197,9 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '400',
     color: '#4C4C4C',
+  },
+  cardDescriptionModule: {
+    textAlign: 'center',
   },
 });
 

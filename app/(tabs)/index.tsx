@@ -1,6 +1,5 @@
 import { StyleSheet } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
@@ -54,13 +53,6 @@ export default function TabTwoScreen() {
           </ThemedView>
         </ThemedView>
 
-        <ThemedView style={styles.card}>
-          <ThemedText type="defaultSemiBold">HelloWave</ThemedText>
-          <ThemedText style={styles.cardDescription}>Small animated waving component used in onboarding and headers.</ThemedText>
-          <ThemedView style={styles.cardPreviewRow}>
-            <HelloWave />
-          </ThemedView>
-        </ThemedView>
 
         <ThemedView style={styles.card}>
           <ThemedText type="defaultSemiBold">Input</ThemedText>
@@ -99,25 +91,27 @@ export default function TabTwoScreen() {
           <ThemedText style={styles.cardDescription}>Image card with overlaid alert badge and excerpt.</ThemedText>
           <ThemedView style={{ gap: 12 }}>
             <Card
-              image={{ uri: "https://images.unsplash.com/photo-1504829857797-ddff29c27927?auto=format&fit=crop&w=900&q=80" }}
+              image="https://images.unsplash.com/photo-1504829857797-ddff29c27927?auto=format&fit=crop&w=900&q=80"
               title="Your mood"
               description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
-              alertVariant="video"
-              alertLabel="VIDEO"
+              label="VIDEO"
+              chipVariant="video"
             />
             <Card
-              image={{ uri: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80" }}
+              image="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"
               title="Your mood"
               description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
-              alertVariant="article"
-              alertLabel="ARTICLE"
+              layout="article"
+              label="ARTICLE"
+              chipVariant="article"
             />
             <Card
-              image={{ uri: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80" }}
+              image="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80"
               title="Your mood"
               description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
-              alertVariant="module"
-              alertLabel="MODULE"
+              layout="module"
+              label="MODULE"
+              chipVariant="module"
             />
           </ThemedView>
         </ThemedView>
