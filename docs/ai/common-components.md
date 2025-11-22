@@ -9,6 +9,7 @@ _Current components:_
  - Chip(label: string, variant?: 'video' | 'article' | 'module' | 'mood', onPress?: () => void, style?: ViewStyle): Small labeled tag/chip with gradient variants for content categories and an outlined mood variant.
  - Alert(label?: string, variant?: 'video' | 'article' | 'module', style?: ViewStyle): Small pill used inside Card to indicate content type; gradient variants.
  - Card(image: ImageSourcePropType, title: string, description?: string, alertVariant?: 'video'|'article'|'module', alertLabel?: string): Image-based card with overlay content and an Alert badge.
+- CardCarousel(data: T[], renderItem: (item: T, index: number) => ReactNode, height?: number, peek?: number, loop?: boolean, parallaxOffset?: number, panGestureHandlerProps?: PanGestureHandlerProps): Carousel powered by `react-native-snap-carousel` that centers one card with peeked neighbors, snaps with a momentum animation, and exposes tap-able pagination dots.
 
  - IconSymbol(name: string, size?: number, color?: string, style?: StyleProp<TextStyle>): Unified icon provider that returns branded TSX icon components from `components/ui/icons/*` (Logo, Pencil2, Play, Reader, Plus) and falls back to MaterialIcons for unknown names. Use this instead of importing SVGs directly.
 

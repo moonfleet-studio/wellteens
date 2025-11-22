@@ -4,12 +4,14 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { CardCarousel } from '@/components/ui/card-carousel';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Chip } from '@/components/ui/chip';
+import { Chip, type ChipVariant } from '@/components/ui/chip';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Input } from '@/components/ui/input';
 import { MoodHistoryPoint } from '@/components/ui/mood-history-card';
 import { MoodQuickAddCard } from '@/components/ui/mood-quick-add-card';
+import { ModulesCarousel } from '@/components/ui/modules-carousel';
 import TabScreen from '@/components/ui/tab-screen';
 
 const moodHomeHistory: MoodHistoryPoint[] = [ // mock data for the mood quick add card 
@@ -18,6 +20,49 @@ const moodHomeHistory: MoodHistoryPoint[] = [ // mock data for the mood quick ad
   { date: '2025-01-06', value: 3.6 },
   { date: '2025-01-09', value: 3.4 },
   { date: '2025-01-12', value: 4.2 },
+];
+
+type FeaturedCard = {
+  id: string;
+  image: string;
+  title: string;
+  description: string;
+  label: string;
+  chipVariant: ChipVariant;
+  layout?: 'default' | 'article' | 'module';
+  meta?: string;
+};
+
+const featuredCards: FeaturedCard[] = [
+  {
+    id: 'video-habits',
+    image: 'https://images.unsplash.com/photo-1504829857797-ddff29c27927?auto=format&fit=crop&w=900&q=80',
+    title: 'Guided breathing reset',
+    description: 'Five-minute practice to slow spiraling thoughts before class.',
+    label: 'VIDEO',
+    chipVariant: 'video',
+    layout: 'default',
+    meta: '4:35',
+  },
+  {
+    id: 'article-boundaries',
+    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
+    title: 'How to set small boundaries',
+    description: 'Quick prompts for talking with friends when you need space.',
+    label: 'ARTICLE',
+    chipVariant: 'article',
+    layout: 'article',
+    meta: '6 min read',
+  },
+  {
+    id: 'module-confidence',
+    image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80',
+    title: 'Confidence mini-module',
+    description: 'Daily reflections to help you notice wins and speak up.',
+    label: 'MODULE',
+    chipVariant: 'module',
+    layout: 'module',
+  },
 ];
 
 export default function TabTwoScreen() {
@@ -38,6 +83,7 @@ export default function TabTwoScreen() {
       <ThemedText style={styles.introText}>
         A quick preview of shared UI components. Use these as building blocks across the app.
       </ThemedText>
+      <ModulesCarousel />
 
       <ThemedView style={styles.componentList}>
         <ThemedView style={styles.card}>
@@ -86,34 +132,28 @@ export default function TabTwoScreen() {
           />
         </ThemedView>
 
-        <ThemedView >
+        <ThemedView>
           <ThemedText type="defaultSemiBold">Card</ThemedText>
           <ThemedText style={styles.cardDescription}>Image card with overlaid alert badge and excerpt.</ThemedText>
-          <ThemedView style={{ gap: 12 }}>
-            <Card
-              image="https://images.unsplash.com/photo-1504829857797-ddff29c27927?auto=format&fit=crop&w=900&q=80"
-              title="Your mood"
-              description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
-              label="VIDEO"
-              chipVariant="video"
-            />
-            <Card
-              image="https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80"
-              title="Your mood"
-              description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
-              layout="article"
-              label="ARTICLE"
-              chipVariant="article"
-            />
-            <Card
-              image="https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80"
-              title="Your mood"
-              description="Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit."
-              layout="module"
-              label="MODULE"
-              chipVariant="module"
-            />
-          </ThemedView>
+          <CardCarousel
+            data={featuredCards}
+            keyExtractor={(item) => item.id}
+            height={300}
+            peek={36}
+            parallaxOffset={60}
+            style={styles.carousel}
+            renderItem={(item) => (
+              <Card
+                image={item.image}
+                title={item.title}
+                description={item.description}
+                label={item.label}
+                chipVariant={item.chipVariant}
+                layout={item.layout}
+                meta={item.meta}
+              />
+            )}
+          />
         </ThemedView>
       </ThemedView>
 
@@ -186,5 +226,8 @@ const styles = StyleSheet.create({
   secondaryButtonLabel: {
     textAlign: 'center',
     color: '#1C1C1C',
+  },
+  carousel: {
+    marginTop: 16,
   },
 });
