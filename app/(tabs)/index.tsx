@@ -9,9 +9,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Chip, type ChipVariant } from '@/components/ui/chip';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { Input } from '@/components/ui/input';
+import { ModulesCarousel } from '@/components/ui/modules-carousel';
 import { MoodHistoryPoint } from '@/components/ui/mood-history-card';
 import { MoodQuickAddCard } from '@/components/ui/mood-quick-add-card';
-import { ModulesCarousel } from '@/components/ui/modules-carousel';
 import TabScreen from '@/components/ui/tab-screen';
 
 const moodHomeHistory: MoodHistoryPoint[] = [ // mock data for the mood quick add card 
