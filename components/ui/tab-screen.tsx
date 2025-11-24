@@ -1,6 +1,6 @@
 import type { PropsWithChildren, ReactElement, ReactNode } from 'react';
 import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
+import { SafeAreaView, StyleSheet, View, type StyleProp, type TextStyle, type ViewStyle } from 'react-native';
 import Animated, {
   interpolate,
   useAnimatedReaction,
@@ -25,8 +25,6 @@ type TabScreenProps = PropsWithChildren<{
   headerImage?: ReactElement;
   headerBackgroundColor?: { light: string; dark: string };
   contentContainerStyle?: StyleProp<ViewStyle>;
-  collapsibleHeader?: boolean;
-  collapsibleHeaderHeight?: number;
   headerContent?: ReactNode;
   title?: string;
   titleStyle?: StyleProp<TextStyle>;
@@ -37,8 +35,6 @@ export default function TabScreen({
   headerImage,
   headerBackgroundColor = { light: '#FFFFFF', dark: '#1C1C1C' },
   contentContainerStyle,
-  collapsibleHeader = false,
-  collapsibleHeaderHeight,
   headerContent,
   title,
   titleStyle,
@@ -49,10 +45,7 @@ export default function TabScreen({
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollOffset(scrollRef);
   const navHiddenOffset = useSharedValue(0);
-  const hasCollapsibleHeader = collapsibleHeader || Boolean(headerImage);
-  const headerHeight = hasCollapsibleHeader
-    ? collapsibleHeaderHeight ?? (headerImage ? HEADER_HEIGHT : NAVIGATION_BAR_HEIGHT)
-    : 0;
+  const headerHeight = headerImage ? HEADER_HEIGHT : NAVIGATION_BAR_HEIGHT;
   const safeHeaderHeight = headerHeight > 0 ? headerHeight : 1;
 
   const headerAnimatedStyle = useAnimatedStyle(() => {
@@ -74,7 +67,7 @@ export default function TabScreen({
 
   const content = (
     <ThemedView
-      style={[styles.content, { paddingTop: hasCollapsibleHeader ? 16 : NAVIGATION_BAR_HEIGHT + 16 }, contentContainerStyle]}
+      style={[styles.content, { paddingTop: 16 }, contentContainerStyle]}
     >
       {headerContent ? <View style={styles.headerContent}>{headerContent}</View> : null}
       {title ? (
@@ -109,39 +102,26 @@ export default function TabScreen({
     </Animated.View>
   );
 
-  if (hasCollapsibleHeader) {
-    return (
-      <SafeAreaView style={styles.root}>
-        <View pointerEvents="box-none" style={styles.navBarContainer}>
-          {navigationBar}
-        </View>
-        <Animated.ScrollView
-          ref={scrollRef}
-          style={{ backgroundColor, flex: 1 }}
-          scrollEventThrottle={16}
-          showsVerticalScrollIndicator={false}>
-          <Animated.View
-            style={[
-              styles.header,
-              { height: headerHeight, backgroundColor: headerBackgroundColor[colorScheme], overflow: 'hidden' },
-              headerAnimatedStyle,
-            ]}>
-            {headerImage ?? null}
-          </Animated.View>
-          {content}
-        </Animated.ScrollView>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.root}>
       <View pointerEvents="box-none" style={styles.navBarContainer}>
         {navigationBar}
       </View>
-      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+      <Animated.ScrollView
+        ref={scrollRef}
+        style={{ backgroundColor, flex: 1 }}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}>
+        <Animated.View
+          style={[
+            styles.header,
+            { height: headerHeight, backgroundColor: headerBackgroundColor[colorScheme], overflow: 'hidden' },
+            headerAnimatedStyle,
+          ]}>
+          {headerImage ?? null}
+        </Animated.View>
         {content}
-      </ScrollView>
+      </Animated.ScrollView>
     </SafeAreaView>
   );
 }
@@ -165,7 +145,7 @@ const styles = StyleSheet.create({
   tabTitle: {
     marginTop: 16,
     textAlign: 'center',
-    fontSize: 20,
+    fontSize: 32,
     fontWeight: '600',
     fontFamily: Fonts.rounded,
   },
