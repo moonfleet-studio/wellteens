@@ -10,7 +10,7 @@ export default function Articles() {
   const router = useRouter();
 
   return (
-    <TabScreen title="Articles">
+    <TabScreen animatedTopBar title="Articles">
       <View style={styles.list}>
         {ARTICLE_LIBRARY.map((article) => (
           <Card

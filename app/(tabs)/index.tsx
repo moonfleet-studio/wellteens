@@ -1,7 +1,8 @@
-import { StyleSheet } from 'react-native';
+import { ScrollView, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Alert, type AlertVariant } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CardCarousel } from '@/components/ui/card-carousel';
@@ -14,7 +15,7 @@ import { MoodHistoryPoint } from '@/components/ui/mood-history-card';
 import { MoodQuickAddCard } from '@/components/ui/mood-quick-add-card';
 import TabScreen from '@/components/ui/tab-screen';
 
-const moodHomeHistory: MoodHistoryPoint[] = [ // mock data for the mood quick add card 
+const moodHomeHistory: MoodHistoryPoint[] = [
   { date: '2025-01-02', value: 2.2 },
   { date: '2025-01-04', value: 4.8 },
   { date: '2025-01-06', value: 3.6 },
@@ -65,8 +66,45 @@ const featuredCards: FeaturedCard[] = [
   },
 ];
 
-export default function TabTwoScreen() {
+const alertExamples: {
+  id: string;
+  variant: AlertVariant;
+  chipLabel: string;
+  chipVariant: ChipVariant;
+  title: string;
+  date: string;
+  body: string;
+}[] = [
+  {
+    id: 'mood-check',
+    variant: 'module',
+    chipLabel: 'MOOD',
+    chipVariant: 'module',
+    title: 'Your mood',
+    date: '12.08.2025',
+    body: 'Lorem qui cupidatat est. Proident anim esse laborum aute officia mollit.',
+  },
+  {
+    id: 'breath-reset',
+    variant: 'article',
+    chipLabel: 'BREATH',
+    chipVariant: 'article',
+    title: 'Breathing reset',
+    date: '11.08.2025',
+    body: 'Breathe in for 4, hold for 4, breathe out slowly for 6 seconds.',
+  },
+  {
+    id: 'pep-talk',
+    variant: 'video',
+    chipLabel: 'HYPE',
+    chipVariant: 'video',
+    title: 'Pep talk',
+    date: '10.08.2025',
+    body: 'Quick encouragement from the Wellteens mentor team.',
+  },
+];
 
+export default function TabTwoScreen() {
   return (
     <TabScreen
       title="Components"
@@ -84,6 +122,22 @@ export default function TabTwoScreen() {
         A quick preview of shared UI components. Use these as building blocks across the app.
       </ThemedText>
       <ModulesCarousel />
+      <ThemedView style={styles.alertsWrapper}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.alertsRow}>
+          {alertExamples.map((alert) => (
+            <Alert
+              key={alert.id}
+              variant={alert.variant}
+              chipLabel={alert.chipLabel}
+              chipVariant={alert.chipVariant}
+              title={alert.title}
+              date={alert.date}
+              body={alert.body}
+              style={styles.alertCard}
+            />
+          ))}
+        </ScrollView>
+      </ThemedView>
 
       <ThemedView style={styles.componentList}>
         <ThemedView style={styles.card}>
@@ -98,7 +152,6 @@ export default function TabTwoScreen() {
             </Button>
           </ThemedView>
         </ThemedView>
-
 
         <ThemedView style={styles.card}>
           <ThemedText type="defaultSemiBold">Input</ThemedText>
@@ -205,27 +258,22 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   previewSecondary: {
-    // allow a smaller visual size for secondary preview
+    
   },
   previewLabel: {
     color: '#1C1C1C',
   },
-  actionButton: {
+  alertsWrapper: {
     marginBottom: 16,
-    alignSelf: 'flex-start',
   },
-  actionButtonLabel: {
-    textAlign: 'center',
-    color: '#1C1C1C',
+  alertsRow: {
+    flexDirection: 'row',
+    gap: 12,
+    alignItems: 'stretch',
+    paddingHorizontal: 4,
   },
-  secondaryButton: {
-    marginTop: 8,
-    marginBottom: 16,
-    alignSelf: 'flex-start',
-  },
-  secondaryButtonLabel: {
-    textAlign: 'center',
-    color: '#1C1C1C',
+  alertCard: {
+    marginRight: 12,
   },
   carousel: {
     marginTop: 16,
