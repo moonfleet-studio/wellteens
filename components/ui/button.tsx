@@ -6,7 +6,7 @@ type ButtonVariant = 'primary' | 'secondary';
 
 interface ButtonProps {
   onPress: () => void;
-  children: ReactNode;
+  children?: ReactNode;
   style?: StyleProp<ViewStyle>;
   variant?: ButtonVariant;
   disabled?: boolean;
@@ -34,7 +34,7 @@ const VARIANT_PRESETS: Record<ButtonVariant, { gradient: readonly [string, strin
 
 export function Button({
   onPress,
-  children,
+  children = null,
   style,
   variant = 'primary',
   disabled = false,
