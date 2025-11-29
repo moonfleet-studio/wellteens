@@ -2,12 +2,14 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
+import { MoodDrawerProvider, useMoodDrawer } from '@/components/mood-drawer-context';
+import { MoodDrawer } from '@/components/ui/mood-drawer';
 import CustomTabBar from '@/components/ui/custom-tabbar';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+function TabNavigator({ colorScheme }: { colorScheme: 'light' | 'dark' | undefined }) {
+  const { isMoodDrawerOpen } = useMoodDrawer();
 
   return (
     <Tabs
@@ -16,7 +18,7 @@ export default function TabLayout() {
         headerShown: false,
         tabBarButton: HapticTab,
       }}
-    tabBar={(props) => <CustomTabBar {...props} />}
+      tabBar={(props) => (isMoodDrawerOpen ? null : <CustomTabBar {...props} />)}
     >
       <Tabs.Screen
         name="index"
@@ -55,5 +57,16 @@ export default function TabLayout() {
         }}
       />
     </Tabs>
+  );
+}
+
+export default function TabLayout() {
+  const colorScheme = useColorScheme();
+
+  return (
+    <MoodDrawerProvider>
+      <TabNavigator colorScheme={colorScheme} />
+      <MoodDrawer />
+    </MoodDrawerProvider>
   );
 }

@@ -2,10 +2,11 @@ import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { useMoodDrawer } from '@/components/mood-drawer-context';
 import { IconSymbol } from './icon-symbol';
 
 export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
-  
+  const { openMoodDrawer } = useMoodDrawer();
 
   const tabs = [
     { name: 'index', label: 'Home', icon: 'Logo' },
@@ -46,7 +47,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
           })}
         </LinearGradient>
 
-        <Pressable onPress={() => navigation.navigate('mood')} style={styles.fabWrapper} accessibilityRole="button">
+        <Pressable onPress={openMoodDrawer} style={styles.fabWrapper} accessibilityRole="button">
           <LinearGradient
             colors={['#FFD07D', '#FFEECF']}
             // approximate 272deg by starting from the right and ending slightly up-left
