@@ -1,5 +1,5 @@
-import { LinearGradient } from 'expo-linear-gradient';
-import React, { useEffect, useRef, useState } from 'react';
+import { LinearGradient } from "expo-linear-gradient";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Animated,
   Easing,
@@ -10,10 +10,10 @@ import {
   View,
   type StyleProp,
   type ViewStyle,
-} from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+} from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { useMoodDrawer } from '@/components/mood-drawer-context';
+import { useMoodDrawer } from "@/components/mood-drawer-context";
 
 const DRAWER_HEIGHT = 330;
 const SLIDER_WIDTH = 260;
@@ -22,37 +22,37 @@ const DOT_SIZE = 12;
 const TRACK_WIDTH = SLIDER_WIDTH - KNOB_SIZE;
 const MOOD_STATES = [
   {
-    key: 'awfull',
-    label: 'Awfull',
-    colors: ['#FF7D7D', '#FF7979'] as const,
+    key: "awfull",
+    label: "Awfull",
+    colors: ["#FF7D7D", "#FF7979"] as const,
     start: { x: 1, y: 0.5 },
     end: { x: 0, y: 0.5 },
   },
   {
-    key: 'sad',
-    label: 'Sad',
-    colors: ['#CCCCCC', 'rgba(144, 141, 133, 1)'] as const,
-      start: { x: 0, y: 0.5 },
+    key: "sad",
+    label: "Sad",
+    colors: ["#CCCCCC", "rgba(144, 141, 133, 1)"] as const,
+    start: { x: 0, y: 0.5 },
     end: { x: 1, y: 0.5 },
   },
   {
-    key: 'fine',
-    label: 'Fine',
-    colors: ['#FFD07D', '#FFEECF'] as const,
+    key: "fine",
+    label: "Fine",
+    colors: ["#FFD07D", "#FFEECF"] as const,
     start: { x: 1, y: 0.5 },
     end: { x: 0, y: 0.5 },
   },
   {
-    key: 'relaxed',
-    label: 'Relaxed',
-    colors: ['#12A5E5', '#2EB6F2', '#84DAFF'] as const,
-   start: { x: 1, y: 0.5 },
+    key: "relaxed",
+    label: "Relaxed",
+    colors: ["#12A5E5", "#2EB6F2", "#84DAFF"] as const,
+    start: { x: 1, y: 0.5 },
     end: { x: 0, y: 0.5 },
   },
   {
-    key: 'amazing',
-    label: 'Amazing',
-    colors: ['#12E5C9', '#6DFDD9'] as const,
+    key: "amazing",
+    label: "Amazing",
+    colors: ["#12E5C9", "#6DFDD9"] as const,
     start: { x: 1, y: 0.5 },
     end: { x: 0, y: 0.5 },
   },
@@ -111,15 +111,22 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
   }, [isMoodDrawerOpen, safeArea.bottom, backdropOpacity, translateY]);
 
   return (
-    <Animated.View pointerEvents={isMoodDrawerOpen ? 'auto' : 'none'} style={[styles.overlay, style]}>
+    <Animated.View
+      pointerEvents={isMoodDrawerOpen ? "auto" : "none"}
+      style={[styles.overlay, style]}
+    >
       <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]} />
-      <Pressable style={styles.backdropTouchable} onPress={closeMoodDrawer} accessibilityRole="button" />
+      <Pressable
+        style={styles.backdropTouchable}
+        onPress={closeMoodDrawer}
+        accessibilityRole="button"
+      />
       <Animated.View
         style={[
           styles.drawer,
           {
             height: DRAWER_HEIGHT + safeArea.bottom + 32,
-            
+
             transform: [{ translateY }],
           },
         ]}
@@ -130,7 +137,9 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
           end={activeMood.end}
           style={styles.gradientContainer}
         >
-          <Text style={styles.promptLabel}>Choose how you’re feeling today</Text>
+          <Text style={styles.promptLabel}>
+            Choose how you’re feeling today
+          </Text>
           <Text style={styles.moodLabel}>{activeMood.label}</Text>
           <View
             style={styles.sliderContainer}
@@ -138,7 +147,12 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
             onResponderGrant={handleSliderGesture}
             onResponderMove={handleSliderGesture}
           >
-            <View style={[styles.sliderTrack, { width: trackWidth, marginHorizontal: knobOffset }]} />
+            <View
+              style={[
+                styles.sliderTrack,
+                { width: trackWidth, marginHorizontal: knobOffset },
+              ]}
+            />
             {MOOD_STATES.map((state, index) => {
               const dotLeft = knobOffset + index * knobSpacing - DOT_SIZE / 2;
               return (
@@ -161,7 +175,7 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
           </View>
           <Pressable onPress={closeMoodDrawer} accessibilityRole="button">
             <LinearGradient
-              colors={['#FFFFFF', 'rgba(255, 255, 255, 0.5)']}
+              colors={["#FFFFFF", "rgba(255, 255, 255, 0.5)"]}
               start={{ x: 0.5, y: 0 }}
               end={{ x: 0.5, y: 1 }}
               style={styles.saveButton}
@@ -177,75 +191,75 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
 
 const styles = StyleSheet.create({
   overlay: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
     zIndex: 50,
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
   },
   backdropTouchable: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   drawer: {
-    width: '100%',
+    width: "100%",
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   gradientContainer: {
     flex: 1,
     paddingHorizontal: 32,
     paddingTop: 24,
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   moodLabel: {
     fontSize: 32,
-    fontWeight: '700',
-    color: '#111',
+    fontWeight: "700",
+    color: "#111",
   },
   promptLabel: {
     fontSize: 16,
-    fontWeight: '400',
-    color: '#111',
+    fontWeight: "400",
+    color: "#111",
     marginTop: 36,
   },
   sliderContainer: {
     width: SLIDER_WIDTH,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 16,
     marginBottom: 0,
-    position: 'relative',
+    position: "relative",
   },
   sliderTrack: {
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.5)',
+    backgroundColor: "rgba(255,255,255,0.5)",
   },
   sliderKnob: {
-    position: 'absolute',
+    position: "absolute",
     width: KNOB_SIZE,
     height: KNOB_SIZE,
     borderRadius: KNOB_SIZE / 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderWidth: 6,
-    borderColor: 'rgba(255,255,255,0.7)',
+    borderColor: "rgba(255,255,255,0.7)",
     top: -((KNOB_SIZE - 8) / 2),
   },
   stepDot: {
-    position: 'absolute',
+    position: "absolute",
     width: DOT_SIZE,
     height: DOT_SIZE,
     borderRadius: DOT_SIZE / 2,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     opacity: 0.7,
     top: -2,
   },
@@ -253,10 +267,10 @@ const styles = StyleSheet.create({
     width: 200,
     paddingVertical: 12,
     borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginVertical: 32,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.25,
     shadowRadius: 6,
@@ -264,7 +278,7 @@ const styles = StyleSheet.create({
   },
   saveButtonLabel: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#111',
+    fontWeight: "600",
+    color: "#111",
   },
 });
