@@ -3,8 +3,8 @@ import React from 'react';
 
 import { HapticTab } from '@/components/haptic-tab';
 import { MoodDrawerProvider, useMoodDrawer } from '@/components/mood-drawer-context';
-import { MoodDrawer } from '@/components/ui/mood-drawer';
 import CustomTabBar from '@/components/ui/custom-tabbar';
+import { MoodDrawer } from '@/components/ui/mood-drawer';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 

@@ -1,8 +1,8 @@
+import { useMoodDrawer } from '@/components/mood-drawer-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useMoodDrawer } from '@/components/mood-drawer-context';
 import { IconSymbol } from './icon-symbol';
 
 export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {

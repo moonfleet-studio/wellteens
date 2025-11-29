@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Easing,
+  GestureResponderEvent,
   Pressable,
   StyleSheet,
   Text,
@@ -23,39 +24,39 @@ const MOOD_STATES = [
   {
     key: 'awfull',
     label: 'Awfull',
-    colors: ['#FF7D7D', '#FF7979'],
+    colors: ['#FF7D7D', '#FF7979'] as const,
     start: { x: 1, y: 0.5 },
     end: { x: 0, y: 0.5 },
   },
   {
     key: 'sad',
     label: 'Sad',
-    colors: ['#CCCCCC', 'rgba(144, 141, 133, 1)'],
-    start: { x: 0.5, y: 0 },
-    end: { x: 0.5, y: 1 },
+    colors: ['#CCCCCC', 'rgba(144, 141, 133, 1)'] as const,
+      start: { x: 0, y: 0.5 },
+    end: { x: 1, y: 0.5 },
   },
   {
     key: 'fine',
     label: 'Fine',
-    colors: ['#FFD07D', '#FFEECF'],
+    colors: ['#FFD07D', '#FFEECF'] as const,
     start: { x: 1, y: 0.5 },
     end: { x: 0, y: 0.5 },
   },
   {
     key: 'relaxed',
     label: 'Relaxed',
-    colors: ['#12A5E5', '#2EB6F2', '#84DAFF'],
-    start: { x: 1, y: 0 },
-    end: { x: 0, y: 1 },
+    colors: ['#12A5E5', '#2EB6F2', '#84DAFF'] as const,
+   start: { x: 1, y: 0.5 },
+    end: { x: 0, y: 0.5 },
   },
   {
     key: 'amazing',
     label: 'Amazing',
-    colors: ['#12E5C9', '#6DFDD9'],
+    colors: ['#12E5C9', '#6DFDD9'] as const,
     start: { x: 1, y: 0.5 },
     end: { x: 0, y: 0.5 },
   },
-];
+] as const;
 
 interface MoodDrawerProps {
   style?: StyleProp<ViewStyle>;
@@ -75,6 +76,13 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
   const knobOffset = KNOB_SIZE / 2;
 
   const activeMood = MOOD_STATES[selectedIndex];
+
+  const handleSliderGesture = (event: GestureResponderEvent) => {
+    const rawX = event.nativeEvent.locationX - knobOffset;
+    const clampedX = Math.max(0, Math.min(trackWidth, rawX));
+    const nextIndex = Math.round(clampedX / knobSpacing);
+    setSelectedIndex(nextIndex);
+  };
 
   useEffect(() => {
     Animated.timing(knobTranslate, {
@@ -124,7 +132,12 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
         >
           <Text style={styles.promptLabel}>Choose how you’re feeling today</Text>
           <Text style={styles.moodLabel}>{activeMood.label}</Text>
-          <View style={styles.sliderContainer}>
+          <View
+            style={styles.sliderContainer}
+            onStartShouldSetResponder={() => true}
+            onResponderGrant={handleSliderGesture}
+            onResponderMove={handleSliderGesture}
+          >
             <View style={[styles.sliderTrack, { width: trackWidth, marginHorizontal: knobOffset }]} />
             {MOOD_STATES.map((state, index) => {
               const dotLeft = knobOffset + index * knobSpacing - DOT_SIZE / 2;
