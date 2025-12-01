@@ -45,6 +45,13 @@ function TabNavigator({ colorScheme }: { colorScheme: 'light' | 'dark' | undefin
         }}
       />
       <Tabs.Screen
+        name="modules"
+        options={{
+          title: 'Modules',
+          href: null,
+        }}
+      />
+      <Tabs.Screen
         name="mood"
         options={{
           title: 'Mood',

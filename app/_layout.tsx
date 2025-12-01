@@ -24,6 +24,10 @@ export default function RootLayout() {
           name="article/[id]"
           options={{ animation: 'slide_from_right', headerTitle: '' }}
         />
+        <Stack.Screen
+          name="module/[id]"
+          options={{ animation: 'slide_from_right', headerTitle: '' }}
+        />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
       </Stack>
       <StatusBar style="dark" />

@@ -1,68 +1,25 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CardCarousel } from '@/components/ui/card-carousel';
-import type { ChipVariant } from '@/components/ui/chip';
+import { MODULE_LIBRARY } from '@/constants/modules';
 import { Fonts } from '@/constants/theme';
 
-type ModuleCard = {
-  id: string;
-  image: string;
-  title: string;
-  description: string;
-  chipVariant: ChipVariant;
-};
-
-const moduleDeck: ModuleCard[] = [
-  {
-    id: 'sleep-reset',
-    image:
-      'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80',
-    title: 'Sleep reset',
-    description: 'Gentle wind-down prompts that help you switch off before bedtime.',
-    chipVariant: 'module',
-  },
-  {
-    id: 'confidence-lifts',
-    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
-    title: 'Confidence lifts',
-    description: 'Tiny wins to celebrate when you speak up or try something new.',
-    chipVariant: 'module',
-  },
-  {
-    id: 'body-scan',
-    image: 'https://images.unsplash.com/photo-1500534623283-312aade485b7?auto=format&fit=crop&w=900&q=80',
-    title: 'Body scan reset',
-    description: 'Short guided body awareness practice for when energy dips.',
-    chipVariant: 'module',
-  },
-  {
-    id: 'friendship-check',
-    image: 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80',
-    title: 'Friendship check-in',
-    description: 'Map whose energy lifts you and plan one small reach out.',
-    chipVariant: 'module',
-  },
-  {
-    id: 'focus-breath',
-    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
-    title: 'Focus breath',
-    description: 'Breath cues to reset attention before a tough conversation.',
-    chipVariant: 'module',
-  },
-];
-
 export function ModulesCarousel() {
+  const router = useRouter();
+
   return (
     <ThemedView style={styles.container}>
       <ThemedText type="title" style={styles.title}>
         Modules
       </ThemedText>
       <CardCarousel
-        data={moduleDeck}
+        data={MODULE_LIBRARY}
         keyExtractor={(item) => item.id}
         height={240}
         peek={36}
@@ -76,10 +33,14 @@ export function ModulesCarousel() {
             label="MODULE"
             chipVariant={item.chipVariant}
             layout='module'
+            onPress={() => router.push({ pathname: '/module/[id]', params: { id: item.id } })}
           />
         )}
         style={styles.carousel}
       />
+      <Button variant="secondary" onPress={() => router.push('/modules')} style={styles.sectionButton}>
+        <ThemedText style={styles.buttonLabel}>See all Modules</ThemedText>
+      </Button>
     </ThemedView>
   );
 }
@@ -98,5 +59,12 @@ const styles = StyleSheet.create({
   },
   carousel: {
     width: '100%',
+  },
+  sectionButton: {
+    alignSelf: 'center',
+    marginTop: 16,
+  },
+  buttonLabel: {
+    color: '#1C1C1C',
   },
 });
