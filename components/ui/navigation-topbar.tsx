@@ -38,7 +38,8 @@ export function NavigationTopBar({
     if (!width) {
       return VIEWBOX.height;
     }
-    return (VIEWBOX.height / VIEWBOX.width) * width;
+    const calculated = (VIEWBOX.height / VIEWBOX.width) * width;
+    return Math.min(calculated, 105);
   }, [width]);
 
   const paddingTop = (includeSafeAreaInset ? insets.top : 0) + 12;
@@ -104,6 +105,7 @@ export function NavigationTopBar({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
+    maxHeight: 105,
     position: 'relative',
     overflow: 'visible',
   },

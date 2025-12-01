@@ -6,6 +6,7 @@ import {
 } from "expo-av";
 import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import * as ScreenOrientation from "expo-screen-orientation";
 import React, {
   useCallback,
   useEffect,
@@ -88,6 +89,14 @@ export default function VideoPlayerScreen() {
     handleScreenInteraction();
     return () => clearHideControlsTimeout();
   }, [clearHideControlsTimeout, handleScreenInteraction]);
+
+  // Unlock orientation for video screen, lock back to portrait on unmount
+  useEffect(() => {
+    ScreenOrientation.unlockAsync();
+    return () => {
+      ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    };
+  }, []);
 
   const handleFullscreenToggle = useCallback(() => {
     handleScreenInteraction();

@@ -1,6 +1,8 @@
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
+import * as ScreenOrientation from 'expo-screen-orientation';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 export const unstable_settings = {
@@ -8,6 +10,11 @@ export const unstable_settings = {
 };
 
 export default function RootLayout() {
+  // Lock orientation to portrait for the entire app by default
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+  }, []);
+
   return (
     <ThemeProvider value={DefaultTheme}>
       <Stack>
