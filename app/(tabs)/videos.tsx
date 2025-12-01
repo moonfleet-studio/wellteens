@@ -22,8 +22,6 @@ export default function TabTwoScreen() {
   return (
     <TabScreen
       title="Videos"
-      collapsibleHeader
-      collapsibleHeaderHeight={0}
       headerBackgroundColor={{ light: 'transparent', dark: 'transparent' }}
     >
       <Input

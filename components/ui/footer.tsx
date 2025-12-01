@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: 24,
     paddingHorizontal: 16,
-    marginBottom: 52,
+    marginBottom: "25%",
   },
   title: {
     textAlign: "center",

@@ -39,16 +39,15 @@ export default function TabTwoScreen() {
 
   return (
     <TabScreen>
-      <SectionTitle>Mood</SectionTitle>
       <ThemedView style={styles.section}>
         <MoodQuickAddCard data={moodHomeHistory} />
       </ThemedView>
-      <Divider style={styles.divider} />
+      <Divider />
 
       <ThemedView style={styles.section}>
         <ModulesCarousel />
       </ThemedView>
-      <Divider style={styles.divider} />
+      <Divider />
 
       <SectionTitle>Videos</SectionTitle>
       <ThemedView style={styles.section}>
@@ -119,8 +118,5 @@ const styles = StyleSheet.create({
   },
   cardWrapper: {
     marginBottom: 16,
-  },
-  divider: {
-    marginVertical: 24,
-  },
+  }
 });
