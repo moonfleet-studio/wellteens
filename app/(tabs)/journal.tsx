@@ -58,20 +58,24 @@ function getMoodKey(value: number): AlertVariant {
 }
 
 export default function Journal() {
-  const { openJournalEntry, journalEntries } = useMoodDrawer();
+  const { openJournalEntry, journalEntries, openEditJournalEntry } = useMoodDrawer();
 
-  const moodHistory: MoodHistoryPoint[] = useMemo(() => {
-    if (!journalEntries || journalEntries.length === 0) return mockMoodHistory;
-    
-    return journalEntries.map((entry) => ({
-      date: entry.date.split('.').reverse().join('-'),
-      value: entry.moodValue,
-    })).reverse();
+  const allEntries = useMemo(() => {
+    return journalEntries ? [...journalEntries, ...staticJournalEntries] : staticJournalEntries;
   }, [journalEntries]);
 
-  const displayEntries = useMemo(() => {
-    const allEntries = journalEntries ? [...journalEntries, ...staticJournalEntries] : staticJournalEntries;
+  const moodHistory: MoodHistoryPoint[] = useMemo(() => {
+    if (allEntries.length === 0) return mockMoodHistory;
     
+    return allEntries
+      .map((entry) => ({
+        date: entry.date.split('.').reverse().join('-'),
+        value: entry.moodValue,
+      }))
+      .sort((a, b) => a.date.localeCompare(b.date));
+  }, [allEntries]);
+
+  const displayEntries = useMemo(() => {
     return allEntries.map((entry) => {
       const moodVariant = getMoodKey(entry.moodValue);
       return {
@@ -83,7 +87,14 @@ export default function Journal() {
         body: entry.body,
       };
     });
-  }, [journalEntries]);
+  }, [allEntries]);
+
+  const handleEntryPress = (entryId: string) => {
+    const entry = allEntries.find((e) => e.id === entryId);
+    if (entry) {
+      openEditJournalEntry(entry);
+    }
+  };
 
   return (
     <TabScreen headerContent={<MoodHistoryCard data={moodHistory} />} title="Journal">
@@ -114,6 +125,7 @@ export default function Journal() {
               date={entry.date}
               body={entry.body}
               style={styles.entryCard}
+              onPress={() => handleEntryPress(entry.id)}
             />
           ))}
         </ThemedView>

@@ -36,6 +36,9 @@ type MoodDrawerContextValue = {
   confirmMoodSelection: () => void;
   journalEntries: JournalEntry[];
   addJournalEntry: (entry: Omit<JournalEntry, 'id' | 'date'>) => void;
+  editingEntry: JournalEntry | null;
+  openEditJournalEntry: (entry: JournalEntry) => void;
+  updateJournalEntry: (entry: JournalEntry) => void;
 };
 
 const MoodDrawerContext = createContext<MoodDrawerContextValue | null>(null);
@@ -50,6 +53,7 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
   const [isJournalFormOpen, setIsJournalFormOpen] = useState(false);
   const [selectedMoodIndex, setSelectedMoodIndex] = useState(2);
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+  const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
 
   const openMoodDrawer = useCallback(() => {
     setMoodDrawerOpen(true);
@@ -61,15 +65,25 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
   }, []);
 
   const openJournalEntry = useCallback(() => {
+    setEditingEntry(null);
     setIsJournalMode(true);
     setSelectedMoodIndex(2);
     setMoodDrawerOpen(true);
+  }, []);
+
+  const openEditJournalEntry = useCallback((entry: JournalEntry) => {
+    setEditingEntry(entry);
+    const moodIndex = MOOD_STATES.findIndex((m) => m.value === entry.moodValue);
+    setSelectedMoodIndex(moodIndex >= 0 ? moodIndex : 2);
+    setIsJournalMode(true);
+    setIsJournalFormOpen(true);
   }, []);
 
   const closeJournalEntry = useCallback(() => {
     setIsJournalFormOpen(false);
     setIsJournalMode(false);
     setSelectedMoodIndex(2);
+    setEditingEntry(null);
   }, []);
 
   const confirmMoodSelection = useCallback(() => {
@@ -95,6 +109,17 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
     setIsJournalFormOpen(false);
     setIsJournalMode(false);
     setSelectedMoodIndex(2);
+    setEditingEntry(null);
+  }, []);
+
+  const updateJournalEntry = useCallback((updatedEntry: JournalEntry) => {
+    setJournalEntries((prev) =>
+      prev.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry))
+    );
+    setIsJournalFormOpen(false);
+    setIsJournalMode(false);
+    setSelectedMoodIndex(2);
+    setEditingEntry(null);
   }, []);
 
   const contextValue = useMemo(
@@ -111,6 +136,9 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
       confirmMoodSelection,
       journalEntries,
       addJournalEntry,
+      editingEntry,
+      openEditJournalEntry,
+      updateJournalEntry,
     }),
     [
       isMoodDrawerOpen,
@@ -124,6 +152,9 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
       confirmMoodSelection,
       journalEntries,
       addJournalEntry,
+      editingEntry,
+      openEditJournalEntry,
+      updateJournalEntry,
     ]
   );
 

@@ -6,7 +6,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { IconSymbol } from './icon-symbol';
 
 export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
-  const { openMoodDrawer } = useMoodDrawer();
+  const { openJournalEntry } = useMoodDrawer();
 
   const tabs = [
     { name: 'index', label: 'Home', icon: 'Logo' },
@@ -47,7 +47,7 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
           })}
         </LinearGradient>
 
-        <Pressable onPress={openMoodDrawer} style={styles.fabWrapper} accessibilityRole="button">
+        <Pressable onPress={openJournalEntry} style={styles.fabWrapper} accessibilityRole="button">
           <LinearGradient
             colors={['#FFD07D', '#FFEECF']}
             // approximate 272deg by starting from the right and ending slightly up-left

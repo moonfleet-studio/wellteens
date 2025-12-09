@@ -3,7 +3,7 @@ import { Chip, type ChipVariant } from '@/components/ui/chip';
 import { BlurView } from 'expo-blur';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { Pressable, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 
 export type AlertVariant = 'video' | 'article' | 'module' | 'awfull' | 'sad' | 'fine' | 'relaxed' | 'amazing';
 
@@ -15,9 +15,10 @@ interface AlertProps {
   chipLabel?: string;
   chipVariant?: ChipVariant;
   style?: StyleProp<ViewStyle>;
+  onPress?: () => void;
 }
 
-export function Alert({ variant = 'article', title, date, body, chipLabel, chipVariant, style }: AlertProps) {
+export function Alert({ variant = 'article', title, date, body, chipLabel, chipVariant, style, onPress }: AlertProps) {
   const gradients: Record<AlertVariant, readonly [string, string]> = {
     module: ['#6DFDD9', '#12E5C9'],
     article: ['#FFEECF', '#FFD07D'],
@@ -41,7 +42,7 @@ export function Alert({ variant = 'article', title, date, body, chipLabel, chipV
   const chipVariantValue: ChipVariant = chipVariant ?? moodToChipVariant[variant] ?? (variant as ChipVariant);
   const gradientColors = gradients[variant] ?? gradients.article;
 
-  return (
+  const content = (
     <LinearGradient
       colors={gradientColors}
       start={{ x: 0, y: 0 }}
@@ -63,6 +64,16 @@ export function Alert({ variant = 'article', title, date, body, chipLabel, chipV
       </View>
     </LinearGradient>
   );
+
+  if (onPress) {
+    return (
+      <Pressable onPress={onPress} accessibilityRole="button">
+        {content}
+      </Pressable>
+    );
+  }
+
+  return content;
 }
 
 const styles = StyleSheet.create({

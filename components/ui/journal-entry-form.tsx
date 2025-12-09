@@ -33,6 +33,8 @@ export function JournalEntryForm() {
     selectedMoodIndex,
     openMoodDrawer,
     addJournalEntry,
+    editingEntry,
+    updateJournalEntry,
   } = useMoodDrawer();
 
   const safeArea = useSafeAreaInsets();
@@ -46,6 +48,7 @@ export function JournalEntryForm() {
   const moodColors = MOOD_COLORS[selectedMood.key] ?? MOOD_COLORS.fine;
 
   const canSave = title.trim().length > 0 && body.trim().length > 0;
+  const isEditing = editingEntry !== null;
 
   useEffect(() => {
     Animated.parallel([
@@ -62,11 +65,14 @@ export function JournalEntryForm() {
       }),
     ]).start();
 
-    if (!isJournalFormOpen) {
+    if (isJournalFormOpen && editingEntry) {
+      setTitle(editingEntry.title);
+      setBody(editingEntry.body);
+    } else if (!isJournalFormOpen) {
       setTitle('');
       setBody('');
     }
-  }, [isJournalFormOpen, translateY, opacity]);
+  }, [isJournalFormOpen, editingEntry, translateY, opacity]);
 
   const handleClose = () => {
     closeJournalEntry();
@@ -79,12 +85,22 @@ export function JournalEntryForm() {
   const handleSave = () => {
     if (!canSave) return;
 
-    addJournalEntry({
-      title: title.trim(),
-      body: body.trim(),
-      moodValue: selectedMood.value,
-      moodLabel: selectedMood.label,
-    });
+    if (isEditing && editingEntry) {
+      updateJournalEntry({
+        ...editingEntry,
+        title: title.trim(),
+        body: body.trim(),
+        moodValue: selectedMood.value,
+        moodLabel: selectedMood.label,
+      });
+    } else {
+      addJournalEntry({
+        title: title.trim(),
+        body: body.trim(),
+        moodValue: selectedMood.value,
+        moodLabel: selectedMood.label,
+      });
+    }
   };
 
   return (

@@ -1,9 +1,9 @@
 import { BlurView } from 'expo-blur';
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleProp, StyleSheet, Text, View, ViewStyle } from 'react-native';
 
+import { useMoodDrawer } from '@/components/mood-drawer-context';
 import PlusIcon from '@/components/ui/icons/Plus';
 
 import { MoodHistoryCard, MoodHistoryPoint } from './mood-history-card';
@@ -14,11 +14,11 @@ type MoodQuickAddCardProps = {
 };
 
 export function MoodQuickAddCard({ data, style }: MoodQuickAddCardProps) {
-  const router = useRouter();
+  const { openJournalEntry } = useMoodDrawer();
 
   const handleAddEntry = React.useCallback(() => {
-    router.push('/(tabs)/mood');
-  }, [router]);
+    openJournalEntry();
+  }, [openJournalEntry]);
 
   const accessory = (
     <View style={styles.accessoryWrapper} pointerEvents="box-none">
