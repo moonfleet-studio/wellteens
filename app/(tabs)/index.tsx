@@ -8,20 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Divider } from '@/components/ui/divider';
 import { ModulesCarousel } from '@/components/ui/modules-carousel';
-import { MoodHistoryPoint } from '@/components/ui/mood-history-card';
 import { MoodQuickAddCard } from '@/components/ui/mood-quick-add-card';
 import TabScreen from '@/components/ui/tab-screen';
 import { ARTICLE_LIBRARY } from '@/constants/articles';
 import { Fonts } from '@/constants/theme';
 import { VIDEO_LIBRARY } from '@/constants/videos';
-
-const moodHomeHistory: MoodHistoryPoint[] = [
-  { date: '2025-01-02', value: 2.2 },
-  { date: '2025-01-04', value: 4.8 },
-  { date: '2025-01-06', value: 3.6 },
-  { date: '2025-01-09', value: 3.4 },
-  { date: '2025-01-12', value: 4.2 },
-];
+import { useMoodHistory } from '@/lib/mood-history';
 
 const featuredVideos = VIDEO_LIBRARY.slice(0, 3);
 const featuredArticles = ARTICLE_LIBRARY.slice(0, 3);
@@ -36,11 +28,12 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 
 export default function TabTwoScreen() {
   const router = useRouter();
+  const { moodHistory } = useMoodHistory();
 
   return (
     <TabScreen>
       <ThemedView style={styles.section}>
-        <MoodQuickAddCard data={moodHomeHistory} />
+        <MoodQuickAddCard data={moodHistory} />
       </ThemedView>
       <Divider />
 

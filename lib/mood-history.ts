@@ -74,4 +74,5 @@ export function useMoodHistory() {
   };
 }
 
-export { STATIC_JOURNAL_ENTRIES, FALLBACK_MOOD_HISTORY };
+export { FALLBACK_MOOD_HISTORY, STATIC_JOURNAL_ENTRIES };
+
