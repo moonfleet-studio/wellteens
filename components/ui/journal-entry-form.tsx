@@ -1,3 +1,4 @@
+import { HeaderBackButton } from '@react-navigation/elements';
 import { LinearGradient } from 'expo-linear-gradient';
 import React, { useEffect, useRef, useState } from 'react';
 import {
@@ -119,14 +120,9 @@ export function JournalEntryForm() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
         <View style={[styles.container, { paddingTop: safeArea.top + 16 }]}>
-          <Pressable
-            onPress={handleClose}
-            style={styles.backButton}
-            accessibilityRole="button"
-            accessibilityLabel="Close form"
-          >
-            <IconSymbol name="arrow-back" size={24} color="#1C1C1C" />
-          </Pressable>
+          <View style={styles.backButtonContainer}>
+            <HeaderBackButton onPress={handleClose} style={{ marginLeft: -12 }} />
+          </View>
 
           <ScrollView
             style={styles.scrollView}
@@ -213,14 +209,8 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 24,
   },
-  backButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: '#F2F2F2',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 24,
+  backButtonContainer: {
+    marginBottom: 16,
   },
   scrollView: {
     flex: 1,
