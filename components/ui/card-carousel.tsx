@@ -12,7 +12,12 @@ import {
   ViewStyle,
 } from 'react-native';
 import type { PanGestureHandlerProps } from 'react-native-gesture-handler';
-import Carousel, { type CarouselRenderItemInfo } from 'react-native-snap-carousel';
+
+// Conditionally require native-only carousel to avoid crash on web
+const isWeb = Platform.OS === 'web';
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const Carousel = isWeb ? null : require('react-native-snap-carousel').default;
+type CarouselRenderItemInfo<T> = { item: T; index: number };
 
 export type CardCarouselRenderItem<T> = (item: T, index: number) => ReactNode;
 
@@ -45,7 +50,7 @@ export function CardCarousel<T>({
 }: CardCarouselProps<T>) {
   const [containerWidth, setContainerWidth] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
-  const carouselRef = useRef<Carousel | null>(null);
+  const carouselRef = useRef<any>(null);
   const webListRef = useRef<FlatList<T> | null>(null);
   const carouselData = useMemo(() => [...data], [data]);
   const safePeek = Math.max(0, peek);
