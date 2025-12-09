@@ -33,7 +33,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (token && !expired) {
         setIsAuthenticated(true);
       } else if (token && expired) {
-        // Token expired, clear it
         await clearAuthData();
         setIsAuthenticated(false);
       } else {

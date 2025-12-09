@@ -4,7 +4,7 @@ import { Stack, useRouter, useSegments } from 'expo-router';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import 'react-native-reanimated';
 
 export const unstable_settings = {
@@ -18,7 +18,17 @@ function RootLayoutNav() {
 
   // Lock orientation to portrait for the entire app by default
   useEffect(() => {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+    if (Platform.OS === 'web') return;
+
+    const lockOrientation = async () => {
+      try {
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+      } catch (error) {
+        console.warn('Unable to lock screen orientation:', error);
+      }
+    };
+
+    lockOrientation();
   }, []);
 
   // Handle auth-based navigation
@@ -34,7 +44,7 @@ function RootLayoutNav() {
       // Redirect to main app if authenticated and on auth screen
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated, isLoading, segments]);
+  }, [isAuthenticated, isLoading, segments, router]);
 
   // Show loading screen while checking auth
   if (isLoading) {
