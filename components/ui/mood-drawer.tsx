@@ -1,5 +1,5 @@
 import { LinearGradient } from "expo-linear-gradient";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Animated,
   Easing,
@@ -63,9 +63,15 @@ interface MoodDrawerProps {
 }
 
 export function MoodDrawer({ style }: MoodDrawerProps) {
-  const { isMoodDrawerOpen, closeMoodDrawer } = useMoodDrawer();
+  const {
+    isMoodDrawerOpen,
+    closeMoodDrawer,
+    isJournalMode,
+    selectedMoodIndex,
+    setSelectedMoodIndex,
+    confirmMoodSelection,
+  } = useMoodDrawer();
   const safeArea = useSafeAreaInsets();
-  const [selectedIndex, setSelectedIndex] = useState(2);
 
   const translateY = useRef(new Animated.Value(DRAWER_HEIGHT + 60)).current;
   const backdropOpacity = useRef(new Animated.Value(0)).current;
@@ -75,23 +81,23 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
   const knobSpacing = trackWidth / (MOOD_STATES.length - 1);
   const knobOffset = KNOB_SIZE / 2;
 
-  const activeMood = MOOD_STATES[selectedIndex];
+  const activeMood = MOOD_STATES[selectedMoodIndex];
 
   const handleSliderGesture = (event: GestureResponderEvent) => {
     const rawX = event.nativeEvent.locationX - knobOffset;
     const clampedX = Math.max(0, Math.min(trackWidth, rawX));
     const nextIndex = Math.round(clampedX / knobSpacing);
-    setSelectedIndex(nextIndex);
+    setSelectedMoodIndex(nextIndex);
   };
 
   useEffect(() => {
     Animated.timing(knobTranslate, {
-      toValue: selectedIndex * knobSpacing,
+      toValue: selectedMoodIndex * knobSpacing,
       duration: 200,
       easing: Easing.out(Easing.cubic),
       useNativeDriver: true,
     }).start();
-  }, [selectedIndex, knobSpacing, knobTranslate]);
+  }, [selectedMoodIndex, knobSpacing, knobTranslate]);
 
   useEffect(() => {
     const closedOffset = DRAWER_HEIGHT + safeArea.bottom + 60;
@@ -110,6 +116,22 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
     ]).start();
   }, [isMoodDrawerOpen, safeArea.bottom, backdropOpacity, translateY]);
 
+  const handleSave = () => {
+    if (isJournalMode) {
+      confirmMoodSelection();
+    } else {
+      closeMoodDrawer();
+    }
+  };
+
+  const handleBackdropPress = () => {
+    if (isJournalMode) {
+      confirmMoodSelection();
+    } else {
+      closeMoodDrawer();
+    }
+  };
+
   return (
     <Animated.View
       pointerEvents={isMoodDrawerOpen ? "auto" : "none"}
@@ -118,7 +140,7 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
       <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]} />
       <Pressable
         style={styles.backdropTouchable}
-        onPress={closeMoodDrawer}
+        onPress={handleBackdropPress}
         accessibilityRole="button"
       />
       <Animated.View
@@ -158,7 +180,7 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
               return (
                 <Pressable
                   key={state.key}
-                  onPress={() => setSelectedIndex(index)}
+                  onPress={() => setSelectedMoodIndex(index)}
                   style={[styles.stepDot, { left: dotLeft }]}
                 />
               );
@@ -173,7 +195,7 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
               ]}
             />
           </View>
-          <Pressable onPress={closeMoodDrawer} accessibilityRole="button">
+          <Pressable onPress={handleSave} accessibilityRole="button">
             <LinearGradient
               colors={["#FFFFFF", "rgba(255, 255, 255, 0.5)"]}
               start={{ x: 0.5, y: 0 }}

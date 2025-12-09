@@ -1,8 +1,8 @@
+import { useMoodDrawer, type JournalEntry } from '@/components/mood-drawer-context';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Alert, type AlertVariant } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
-import { type ChipVariant } from '@/components/ui/chip';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import HalfIcon from '@/components/ui/icons/HalfIcom';
 import {
@@ -10,7 +10,7 @@ import {
   MoodHistoryPoint,
 } from '@/components/ui/mood-history-card';
 import TabScreen from '@/components/ui/tab-screen';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 const mockMoodHistory: MoodHistoryPoint[] = [
@@ -22,47 +22,71 @@ const mockMoodHistory: MoodHistoryPoint[] = [
   { date: '2025-01-14', value: 4.6 },
 ];
 
-const journalEntries: {
-  id: string;
-  variant: AlertVariant;
-  chipLabel: string;
-  chipVariant: ChipVariant;
-  title: string;
-  date: string;
-  body: string;
-}[] = [
+const staticJournalEntries: JournalEntry[] = [
   {
     id: 'review-mood',
-    variant: 'module',
-    chipLabel: 'MOOD',
-    chipVariant: 'module',
     title: 'Mood check-in',
-    date: '24.11.2025',
     body: 'Noticed a lot of energy in the afternoon, journaled how it felt and what triggered it.',
+    date: '24.11.2025',
+    moodValue: 3,
+    moodLabel: 'Fine',
   },
   {
     id: 'breathing-break',
-    variant: 'article',
-    chipLabel: 'BREATHE',
-    chipVariant: 'article',
     title: 'Breathing break',
-    date: '23.11.2025',
     body: 'Tried a 4-4-6 cycle after school stress and felt calmer before dinner.',
+    date: '23.11.2025',
+    moodValue: 4,
+    moodLabel: 'Relaxed',
   },
   {
     id: 'mentor-message',
-    variant: 'video',
-    chipLabel: 'HYPE',
-    chipVariant: 'video',
     title: 'Mentor pep talk',
-    date: '22.11.2025',
     body: 'Watched a quick video from my mentor when I felt overwhelmed and remembered my strengths.',
+    date: '22.11.2025',
+    moodValue: 5,
+    moodLabel: 'Amazing',
   },
 ];
 
+function getMoodKey(value: number): AlertVariant {
+  if (value <= 1) return 'awfull';
+  if (value <= 2) return 'sad';
+  if (value <= 3) return 'fine';
+  if (value <= 4) return 'relaxed';
+  return 'amazing';
+}
+
 export default function Journal() {
+  const { openJournalEntry, journalEntries } = useMoodDrawer();
+
+  const moodHistory: MoodHistoryPoint[] = useMemo(() => {
+    if (!journalEntries || journalEntries.length === 0) return mockMoodHistory;
+    
+    return journalEntries.map((entry) => ({
+      date: entry.date.split('.').reverse().join('-'),
+      value: entry.moodValue,
+    })).reverse();
+  }, [journalEntries]);
+
+  const displayEntries = useMemo(() => {
+    const allEntries = journalEntries ? [...journalEntries, ...staticJournalEntries] : staticJournalEntries;
+    
+    return allEntries.map((entry) => {
+      const moodVariant = getMoodKey(entry.moodValue);
+      return {
+        id: entry.id,
+        variant: moodVariant,
+        chipLabel: entry.moodLabel.toUpperCase(),
+        title: entry.title,
+        date: entry.date,
+        body: entry.body,
+      };
+    });
+  }, [journalEntries]);
+
   return (
-    <TabScreen headerContent={<MoodHistoryCard data={mockMoodHistory} />} title="Journal">
+    <TabScreen headerContent={<MoodHistoryCard data={moodHistory} />} title="Journal">
         <ThemedView style={styles.buttonRowWrapper}>
           <ThemedView style={styles.buttonRow}>
             <View style={[styles.buttonColumn, styles.primaryColumnSpacing]}>
@@ -72,7 +96,7 @@ export default function Journal() {
               </Button>
             </View>
             <View style={styles.buttonColumn}>
-              <Button onPress={() => {}} variant="primary" block style={[styles.button, styles.primaryButton]}>
+              <Button onPress={openJournalEntry} variant="primary" block style={[styles.button, styles.primaryButton]}>
                 <ThemedText style={styles.buttonLabel}>Add Entry</ThemedText>
                 <IconSymbol name="Plus" size={16} color="#1C1C1C" style={styles.iconSpacing} />
               </Button>
@@ -81,12 +105,11 @@ export default function Journal() {
         </ThemedView>
       <ThemedView style={styles.container}>
         <ThemedView style={styles.entryList}>
-          {journalEntries.map((entry) => (
+          {displayEntries.map((entry) => (
             <Alert
               key={entry.id}
               variant={entry.variant}
               chipLabel={entry.chipLabel}
-              chipVariant={entry.chipVariant}
               title={entry.title}
               date={entry.date}
               body={entry.body}

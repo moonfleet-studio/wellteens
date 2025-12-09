@@ -4,6 +4,7 @@ import React from 'react';
 import { HapticTab } from '@/components/haptic-tab';
 import { MoodDrawerProvider, useMoodDrawer } from '@/components/mood-drawer-context';
 import CustomTabBar from '@/components/ui/custom-tabbar';
+import { JournalEntryForm } from '@/components/ui/journal-entry-form';
 import { MoodDrawer } from '@/components/ui/mood-drawer';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
@@ -73,6 +74,7 @@ export default function TabLayout() {
   return (
     <MoodDrawerProvider>
       <TabNavigator colorScheme={colorScheme} />
+      <JournalEntryForm />
       <MoodDrawer />
     </MoodDrawerProvider>
   );
