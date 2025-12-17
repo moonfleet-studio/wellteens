@@ -20,43 +20,6 @@ const SLIDER_WIDTH = 260;
 const KNOB_SIZE = 44;
 const DOT_SIZE = 12;
 const TRACK_WIDTH = SLIDER_WIDTH - KNOB_SIZE;
-const MOOD_STATES = [
-  {
-    key: "awfull",
-    label: "Awfull",
-    colors: ["#FF7D7D", "#FF7979"] as const,
-    start: { x: 1, y: 0.5 },
-    end: { x: 0, y: 0.5 },
-  },
-  {
-    key: "sad",
-    label: "Sad",
-    colors: ["#CCCCCC", "rgba(144, 141, 133, 1)"] as const,
-    start: { x: 0, y: 0.5 },
-    end: { x: 1, y: 0.5 },
-  },
-  {
-    key: "fine",
-    label: "Fine",
-    colors: ["#FFD07D", "#FFEECF"] as const,
-    start: { x: 1, y: 0.5 },
-    end: { x: 0, y: 0.5 },
-  },
-  {
-    key: "relaxed",
-    label: "Relaxed",
-    colors: ["#12A5E5", "#2EB6F2", "#84DAFF"] as const,
-    start: { x: 1, y: 0.5 },
-    end: { x: 0, y: 0.5 },
-  },
-  {
-    key: "amazing",
-    label: "Amazing",
-    colors: ["#12E5C9", "#6DFDD9"] as const,
-    start: { x: 1, y: 0.5 },
-    end: { x: 0, y: 0.5 },
-  },
-] as const;
 
 interface MoodDrawerProps {
   style?: StyleProp<ViewStyle>;
@@ -70,6 +33,7 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
     selectedMoodIndex,
     setSelectedMoodIndex,
     confirmMoodSelection,
+    moodStates,
   } = useMoodDrawer();
   const safeArea = useSafeAreaInsets();
 
@@ -78,10 +42,10 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
   const knobTranslate = useRef(new Animated.Value(0)).current;
 
   const trackWidth = Math.max(TRACK_WIDTH, 1);
-  const knobSpacing = trackWidth / (MOOD_STATES.length - 1);
+  const knobSpacing = trackWidth / (moodStates.length - 1);
   const knobOffset = KNOB_SIZE / 2;
 
-  const activeMood = MOOD_STATES[selectedMoodIndex];
+  const activeMood = moodStates[selectedMoodIndex];
 
   const handleSliderGesture = (event: GestureResponderEvent) => {
     const rawX = event.nativeEvent.locationX - knobOffset;
@@ -175,7 +139,7 @@ export function MoodDrawer({ style }: MoodDrawerProps) {
                 { width: trackWidth, marginHorizontal: knobOffset },
               ]}
             />
-            {MOOD_STATES.map((state, index) => {
+            {moodStates.map((state, index) => {
               const dotLeft = knobOffset + index * knobSpacing - DOT_SIZE / 2;
               return (
                 <Pressable

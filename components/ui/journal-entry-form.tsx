@@ -15,17 +15,9 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { MOOD_STATES, useMoodDrawer } from '@/components/mood-drawer-context';
+import { useMoodDrawer } from '@/components/mood-drawer-context';
 import { ThemedText } from '@/components/themed-text';
 import { IconSymbol } from '@/components/ui/icon-symbol';
-
-const MOOD_COLORS: Record<string, readonly [string, string]> = {
-  awfull: ['#FF7979', '#FF7D7D'],
-  sad: ['#CCCCCC', '#908D85'],
-  fine: ['#FFEECF', '#FFD07D'],
-  relaxed: ['#84DAFF', '#12A5E5'],
-  amazing: ['#6DFDD9', '#12E5C9'],
-};
 
 export function JournalEntryForm() {
   const {
@@ -36,6 +28,7 @@ export function JournalEntryForm() {
     addJournalEntry,
     editingEntry,
     updateJournalEntry,
+    moodStates,
   } = useMoodDrawer();
 
   const safeArea = useSafeAreaInsets();
@@ -46,8 +39,12 @@ export function JournalEntryForm() {
   const translateY = useRef(new Animated.Value(1000)).current;
   const opacity = useRef(new Animated.Value(0)).current;
 
-  const selectedMood = MOOD_STATES[selectedMoodIndex];
-  const moodColors = MOOD_COLORS[selectedMood.key] ?? MOOD_COLORS.fine;
+  const selectedMood = moodStates[selectedMoodIndex];
+  // Use first two colors from the mood state for the gradient
+  const moodColors: readonly [string, string] = [
+    selectedMood.colors[0] || '#FFEECF',
+    selectedMood.colors[1] || '#FFD07D',
+  ] as const;
 
   const canSave = title.trim().length > 0 && body.trim().length > 0;
   const isEditing = editingEntry !== null;

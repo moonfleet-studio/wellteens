@@ -1,19 +1,66 @@
-import React, { createContext, ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 
-import { createJournalEntry, getMoodIdByValue, updateJournalEntry as updateJournalEntryApi } from '@/lib/api/journal';
+import { createJournalEntry, fetchMoods, getMoodIdByValue, updateJournalEntry as updateJournalEntryApi } from '@/lib/api/journal';
 
 export type MoodState = {
   key: string;
   label: string;
   value: number;
+  id: number;
+  colors: readonly [string, string] | readonly [string, string, string];
+  start: { x: number; y: number };
+  end: { x: number; y: number };
 };
 
-export const MOOD_STATES: MoodState[] = [
-  { key: 'awfull', label: 'Awfull', value: 0 },
-  { key: 'sad', label: 'Sad', value: 1 },
-  { key: 'fine', label: 'Fine', value: 2 },
-  { key: 'relaxed', label: 'Relaxed', value: 3 },
-  { key: 'amazing', label: 'Amazing', value: 4 },
+// Helper function to generate key from mood name
+function getMoodKey(name: string): string {
+  return name.toLowerCase().replace(/\s+/g, '-');
+}
+
+// Helper function to get mood colors and gradient config
+function getMoodColorConfig(key: string): {
+  colors: readonly [string, string] | readonly [string, string, string];
+  start: { x: number; y: number };
+  end: { x: number; y: number };
+} {
+  const configs: Record<string, { colors: readonly [string, string] | readonly [string, string, string]; start: { x: number; y: number }; end: { x: number; y: number } }> = {
+    awfull: {
+      colors: ['#FF7D7D', '#FF7979'] as const,
+      start: { x: 1, y: 0.5 },
+      end: { x: 0, y: 0.5 },
+    },
+    sad: {
+      colors: ['#CCCCCC', 'rgba(144, 141, 133, 1)'] as const,
+      start: { x: 0, y: 0.5 },
+      end: { x: 1, y: 0.5 },
+    },
+    fine: {
+      colors: ['#FFD07D', '#FFEECF'] as const,
+      start: { x: 1, y: 0.5 },
+      end: { x: 0, y: 0.5 },
+    },
+    relaxed: {
+      colors: ['#12A5E5', '#2EB6F2', '#84DAFF'] as const,
+      start: { x: 1, y: 0.5 },
+      end: { x: 0, y: 0.5 },
+    },
+    amazing: {
+      colors: ['#12E5C9', '#6DFDD9'] as const,
+      start: { x: 1, y: 0.5 },
+      end: { x: 0, y: 0.5 },
+    },
+  };
+
+  return configs[key] || configs.fine;
+}
+
+// Fallback moods in case API fails
+const FALLBACK_MOOD_STATES: MoodState[] = [
+  { key: 'awfull', label: 'Awfull', value: 0, id: 1, ...getMoodColorConfig('awfull') },
+  { key: 'sad', label: 'Sad', value: 1, id: 2, ...getMoodColorConfig('sad') },
+  { key: 'fine', label: 'Fine', value: 2, id: 3, ...getMoodColorConfig('fine') },
+  { key: 'relaxed', label: 'Relaxed', value: 3, id: 4, ...getMoodColorConfig('relaxed') },
+  { key: 'amazing', label: 'Amazing', value: 4, id: 5, ...getMoodColorConfig('amazing') },
 ];
 
 export type JournalEntry = {
@@ -42,6 +89,7 @@ type MoodDrawerContextValue = {
   openEditJournalEntry: (entry: JournalEntry) => void;
   updateJournalEntry: (entry: JournalEntry) => Promise<void>;
   addJournalEntryChangeListener: (callback: () => void) => () => void;
+  moodStates: MoodState[];
 };
 
 const MoodDrawerContext = createContext<MoodDrawerContextValue | null>(null);
@@ -57,7 +105,33 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
   const [selectedMoodIndex, setSelectedMoodIndex] = useState(2);
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
+  const [moodStates, setMoodStates] = useState<MoodState[]>(FALLBACK_MOOD_STATES);
   const listenersRef = useRef<Set<() => void>>(new Set());
+
+  // Fetch moods from API on mount
+  useEffect(() => {
+    const loadMoods = async () => {
+      try {
+        const response = await fetchMoods();
+        const apiMoods = response.docs
+          .sort((a, b) => a.value - b.value) // Sort by value (0-4)
+          .map((mood) => {
+            const key = getMoodKey(mood.name);
+            return {
+              key,
+              label: mood.name,
+              value: mood.value,
+              id: mood.id,
+              ...getMoodColorConfig(key),
+            };
+          });
+        setMoodStates(apiMoods);
+      } catch {
+        // Keep using fallback moods
+      }
+    };
+    loadMoods();
+  }, []);
 
   const openMoodDrawer = useCallback(() => {
     setMoodDrawerOpen(true);
@@ -88,11 +162,11 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
 
   const openEditJournalEntry = useCallback((entry: JournalEntry) => {
     setEditingEntry(entry);
-    const moodIndex = MOOD_STATES.findIndex((m) => m.value === entry.moodValue);
+    const moodIndex = moodStates.findIndex((m) => m.value === entry.moodValue);
     setSelectedMoodIndex(moodIndex >= 0 ? moodIndex : 2);
     setIsJournalMode(true);
     setIsJournalFormOpen(true);
-  }, []);
+  }, [moodStates]);
 
   const closeJournalEntry = useCallback(() => {
     setIsJournalFormOpen(false);
@@ -204,6 +278,7 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
       openEditJournalEntry,
       updateJournalEntry,
       addJournalEntryChangeListener,
+      moodStates,
     }),
     [
       isMoodDrawerOpen,
@@ -221,6 +296,7 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
       openEditJournalEntry,
       updateJournalEntry,
       addJournalEntryChangeListener,
+      moodStates,
     ]
   );
 
