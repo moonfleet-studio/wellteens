@@ -1,3 +1,7 @@
+/**
+ * @deprecated Use Video type from '@/lib/api/videos' instead
+ * This file is kept for backward compatibility with mock data
+ */
 export type VideoContent = {
   id: string;
   title: string;
@@ -7,6 +11,10 @@ export type VideoContent = {
   source: string;
 };
 
+/**
+ * @deprecated Mock data - replaced by API integration
+ * Use fetchVideos() from '@/lib/api/videos' instead
+ */
 export const VIDEO_LIBRARY: VideoContent[] = [
   {
     id: '1',
@@ -50,6 +58,9 @@ export const VIDEO_LIBRARY: VideoContent[] = [
   },
 ];
 
+/**
+ * @deprecated Use fetchVideoById() from '@/lib/api/videos' instead
+ */
 export function getVideoById(id?: string) {
   if (!id) return undefined;
   return VIDEO_LIBRARY.find((video) => video.id === id);

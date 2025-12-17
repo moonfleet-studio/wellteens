@@ -10,11 +10,11 @@ import * as ScreenOrientation from "expo-screen-orientation";
 import React, {
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react";
 import {
+  ActivityIndicator,
   Animated,
   SafeAreaView,
   StyleSheet,
@@ -24,18 +24,14 @@ import {
 
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
-import { getVideoById } from "@/constants/videos";
+import { fetchVideoById, type Video as VideoType } from "@/lib/api/videos";
 
 export default function VideoPlayerScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
-  const video = useMemo(
-    () =>
-      getVideoById(
-        typeof id === "string" ? id : Array.isArray(id) ? id[0] : undefined
-      ),
-    [id]
-  );
+  const [video, setVideo] = useState<VideoType | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const videoRef = useRef<Video>(null);
   const [status, setStatus] = useState<AVPlaybackStatus | null>(null);
   const [trackLayout, setTrackLayout] = useState({ width: 1, x: 0 });
@@ -46,6 +42,27 @@ export default function VideoPlayerScreen() {
   const hideControlsTimeout = useRef<ReturnType<typeof setTimeout> | null>(
     null
   );
+
+  useEffect(() => {
+    const loadVideo = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const videoId = typeof id === 'string' ? parseInt(id) : Array.isArray(id) ? parseInt(id[0]) : 0;
+        const data = await fetchVideoById(videoId);
+        setVideo(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load video');
+        console.error('Error loading video:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      loadVideo();
+    }
+  }, [id]);
 
   const clearHideControlsTimeout = useCallback(() => {
     if (hideControlsTimeout.current) {
@@ -153,10 +170,18 @@ export default function VideoPlayerScreen() {
     Math.min(trackLayout.width - knobSize, fillWidth - knobSize / 2)
   );
 
-  if (!video) {
+  if (loading) {
     return (
       <SafeAreaView style={[styles.safeArea, styles.centered]}>
-        <ThemedText>Could not find a video to play.</ThemedText>
+        <ActivityIndicator size="large" color="#FFD07D" />
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !video) {
+    return (
+      <SafeAreaView style={[styles.safeArea, styles.centered]}>
+        <ThemedText>{error || 'Could not find a video to play.'}</ThemedText>
         <TouchableOpacity
           accessibilityRole="button"
           onPress={() => router.back()}
@@ -194,7 +219,7 @@ export default function VideoPlayerScreen() {
               ref={videoRef}
               style={styles.playerSurface}
               videoStyle={styles.playerVideo}
-              source={{ uri: video.source }}
+              source={{ uri: video.link }}
               resizeMode={ResizeMode.CONTAIN}
               shouldPlay
               isLooping
