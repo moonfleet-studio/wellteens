@@ -7,12 +7,12 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import TabScreen from '@/components/ui/tab-screen';
 import {
-  fetchVideos,
-  getMediaUrl,
-  getVideoDescription,
-  getVideoDuration,
-  getVideoTitle,
-  type Video,
+    fetchVideos,
+    getMediaUrl,
+    getVideoDescription,
+    getVideoDuration,
+    getVideoTitle,
+    type Video,
 } from '@/lib/api/videos';
 
 export default function TabTwoScreen() {

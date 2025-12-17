@@ -1,38 +1,56 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo } from 'react';
-import { Image, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Image, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
-import { ARTICLE_LIBRARY } from '@/constants/articles';
-import { getModuleById } from '@/constants/modules';
 import { Fonts } from '@/constants/theme';
-import { VIDEO_LIBRARY } from '@/constants/videos';
+import { fetchModuleById, getModuleImage, type Module } from '@/lib/api/modules';
+import { getMediaUrl, getVideoDescription, getVideoDuration, getVideoTitle } from '@/lib/api/videos';
 
 export default function ModuleDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
+  const [module, setModule] = useState<Module | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const module = useMemo(
-    () => getModuleById(typeof id === 'string' ? id : Array.isArray(id) ? id[0] : undefined),
-    [id]
-  );
+  useEffect(() => {
+    const loadModule = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const moduleId = typeof id === 'string' ? parseInt(id) : Array.isArray(id) ? parseInt(id[0]) : 0;
+        const data = await fetchModuleById(moduleId);
+        setModule(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load module');
+        console.error('Error loading module:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const moduleVideos = useMemo(() => {
-    if (!module) return [];
-    return VIDEO_LIBRARY.filter((video) => module.videoIds.includes(video.id));
-  }, [module]);
+    if (id) {
+      loadModule();
+    }
+  }, [id]);
 
-  const moduleArticles = useMemo(() => {
-    if (!module) return [];
-    return ARTICLE_LIBRARY.filter((article) => module.articleIds.includes(article.id));
-  }, [module]);
-
-  if (!module) {
+  if (loading) {
     return (
       <SafeAreaView style={[styles.safeArea, styles.centered]}>
-        <ThemedText style={styles.emptyTitle}>Module not found.</ThemedText>
+        <ActivityIndicator size="large" color="#FFD07D" />
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !module) {
+    return (
+      <SafeAreaView style={[styles.safeArea, styles.centered]}>
+        <ThemedText style={styles.emptyTitle}>
+          {error || 'Module not found.'}
+        </ThemedText>
         <TouchableOpacity
           accessibilityRole="button"
           onPress={() => router.back()}
@@ -48,50 +66,50 @@ export default function ModuleDetailScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.heroWrapper}>
-          <Image source={{ uri: module.image }} style={styles.heroImage} resizeMode="cover" />
+          <Image source={{ uri: getMediaUrl(getModuleImage(module)) }} style={styles.heroImage} resizeMode="cover" />
           <View style={styles.heroContent}>
             <Chip variant="module" label="MODULE" />
             <ThemedText type="title" style={styles.title}>
-              {module.title}
+              {module.name}
             </ThemedText>
             <ThemedText style={styles.subtitle}>{module.description}</ThemedText>
           </View>
         </View>
 
-        {moduleVideos.length > 0 && (
+        {module.videos.length > 0 && (
           <View style={styles.section}>
             <ThemedText style={styles.sectionTitle}>Videos</ThemedText>
             <View style={styles.cardList}>
-              {moduleVideos.map((video) => (
+              {module.videos.map((video) => (
                 <Card
                   key={video.id}
-                  image={video.image}
+                  image={getMediaUrl(video.thumbnail.url)}
                   label="VIDEO"
                   chipVariant="videoCompact"
-                  title={video.title}
-                  description={video.description}
-                  meta={video.duration}
-                  onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id } })}
+                  title={getVideoTitle(video)}
+                  description={getVideoDescription(video)}
+                  meta={getVideoDuration(video)}
+                  onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id.toString() } })}
                 />
               ))}
             </View>
           </View>
         )}
 
-        {moduleArticles.length > 0 && (
+        {module.articles.length > 0 && (
           <View style={styles.section}>
             <ThemedText style={styles.sectionTitle}>Articles</ThemedText>
             <View style={styles.cardList}>
-              {moduleArticles.map((article) => (
+              {module.articles.map((article) => (
                 <Card
                   key={article.id}
-                  image={article.image}
-                  label={article.categoryLabel}
+                  image={article.photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80'}
+                  label="ARTICLE"
                   chipVariant="article"
                   title={article.title}
-                  description={article.description}
+                  description={article.lead}
                   layout="article"
-                  onPress={() => router.push({ pathname: '/article/[id]', params: { id: article.id } })}
+                  onPress={() => router.push({ pathname: '/article/[id]', params: { id: article.id.toString() } })}
                 />
               ))}
             </View>

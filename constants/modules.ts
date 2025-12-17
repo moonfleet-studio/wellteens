@@ -1,5 +1,9 @@
 import type { ChipVariant } from '@/components/ui/chip';
 
+/**
+ * @deprecated Use Module type from '@/lib/api/modules' instead
+ * This file is kept for backward compatibility with mock data
+ */
 export type ModuleContent = {
   id: string;
   title: string;
@@ -10,6 +14,10 @@ export type ModuleContent = {
   articleIds: string[];
 };
 
+/**
+ * @deprecated Mock data - replaced by API integration
+ * Use fetchModules() from '@/lib/api/modules' instead
+ */
 export const MODULE_LIBRARY: ModuleContent[] = [
   {
     id: 'sleep-reset',
@@ -58,6 +66,9 @@ export const MODULE_LIBRARY: ModuleContent[] = [
   },
 ];
 
+/**
+ * @deprecated Use fetchModuleById() from '@/lib/api/modules' instead
+ */
 export function getModuleById(id?: string): ModuleContent | undefined {
   if (!id) return undefined;
   return MODULE_LIBRARY.find((module) => module.id === id);
