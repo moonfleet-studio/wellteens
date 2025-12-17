@@ -12,15 +12,12 @@ import { MoodQuickAddCard } from '@/components/ui/mood-quick-add-card';
 import TabScreen from '@/components/ui/tab-screen';
 import { Fonts } from '@/constants/theme';
 import { fetchArticles, type Article } from '@/lib/api/articles';
-import { useMoodHistory } from '@/lib/mood-history';
 import {
   fetchVideos,
   getMediaUrl,
-  getVideoDescription,
-  getVideoDuration,
-  getVideoTitle,
   type Video,
 } from '@/lib/api/videos';
+import { useMoodHistory } from '@/lib/mood-history';
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -84,9 +81,9 @@ export default function TabTwoScreen() {
                     image={getMediaUrl(video.thumbnail.url)}
                     label="VIDEO"
                     chipVariant="videoCompact"
-                    title={getVideoTitle(video)}
-                    description={getVideoDescription(video)}
-                    meta={getVideoDuration(video)}
+                    title={video.title}
+                    description={video.description}
+                    meta=""  // Duration not provided by API
                     onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id.toString() } })}
                   />
                 </View>

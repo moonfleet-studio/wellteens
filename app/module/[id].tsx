@@ -7,7 +7,7 @@ import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { Fonts } from '@/constants/theme';
 import { fetchModuleById, getModuleImage, type Module } from '@/lib/api/modules';
-import { getMediaUrl, getVideoDescription, getVideoDuration, getVideoTitle } from '@/lib/api/videos';
+import { getMediaUrl } from '@/lib/api/videos';
 
 export default function ModuleDetailScreen() {
   const router = useRouter();
@@ -86,9 +86,9 @@ export default function ModuleDetailScreen() {
                   image={getMediaUrl(video.thumbnail.url)}
                   label="VIDEO"
                   chipVariant="videoCompact"
-                  title={getVideoTitle(video)}
-                  description={getVideoDescription(video)}
-                  meta={getVideoDuration(video)}
+                  title={video.title}
+                  description={video.description}
+                  meta=""  // Duration not provided by API
                   onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id.toString() } })}
                 />
               ))}

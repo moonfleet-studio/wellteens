@@ -9,9 +9,6 @@ import TabScreen from '@/components/ui/tab-screen';
 import {
     fetchVideos,
     getMediaUrl,
-    getVideoDescription,
-    getVideoDuration,
-    getVideoTitle,
     type Video,
 } from '@/lib/api/videos';
 
@@ -44,8 +41,8 @@ export default function TabTwoScreen() {
     const trimmed = query.trim().toLowerCase();
     if (!trimmed) return videos;
     return videos.filter((video) => {
-      const title = getVideoTitle(video).toLowerCase();
-      const description = getVideoDescription(video).toLowerCase();
+      const title = video.title.toLowerCase();
+      const description = video.description.toLowerCase();
       return title.includes(trimmed) || description.includes(trimmed);
     });
   }, [query, videos]);
@@ -78,9 +75,9 @@ export default function TabTwoScreen() {
               image={getMediaUrl(video.thumbnail.url)}
               label="VIDEO"
               chipVariant="videoCompact"
-              title={getVideoTitle(video)}
-              description={getVideoDescription(video)}
-              meta={getVideoDuration(video)}
+              title={video.title}
+              description={video.description}
+              meta=""  // Duration not provided by API
               onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id.toString() } })}
             />
           ))}
