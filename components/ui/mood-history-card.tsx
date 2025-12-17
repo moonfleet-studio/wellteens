@@ -25,6 +25,7 @@ const TITLE_MARGIN_BOTTOM = 8;
 const TITLE_MAX_WIDTH = 154;
 const TITLE_MAX_WIDTH_WITH_ACCESSORY = 120;
 const CHART_HEIGHT = 90;
+const CHART_PADDING_BOTTOM = 6; // Padding to prevent line/circle clipping at bottom
 const ENDPOINT_OFFSET = 16;
 const VALUE_MIN = 0;
 const VALUE_MAX = 4;
@@ -76,9 +77,12 @@ export function MoodHistoryCard({
       return Math.min(VALUE_MAX, Math.max(VALUE_MIN, value));
     };
 
+    // Calculate usable height accounting for bottom padding
+    const usableHeight = CHART_HEIGHT - CHART_PADDING_BOTTOM;
+
     const normalize = (value: number) => {
       const ratio = (clampValue(value) - VALUE_MIN) / (VALUE_MAX - VALUE_MIN);
-      return CHART_HEIGHT - ratio * (CHART_HEIGHT * 0.7);
+      return usableHeight - ratio * (usableHeight * 0.75);
     };
 
     const maxX = Math.max(0, width - ENDPOINT_OFFSET);
