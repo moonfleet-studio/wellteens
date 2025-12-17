@@ -11,7 +11,7 @@ import { ModulesCarousel } from '@/components/ui/modules-carousel';
 import { MoodQuickAddCard } from '@/components/ui/mood-quick-add-card';
 import TabScreen from '@/components/ui/tab-screen';
 import { Fonts } from '@/constants/theme';
-import { fetchArticles, type Article } from '@/lib/api/articles';
+import { fetchArticles, getArticlePhotoUrl, type Article } from '@/lib/api/articles';
 import {
   fetchVideos,
   getMediaUrl,
@@ -45,7 +45,7 @@ export default function TabTwoScreen() {
         setVideos(videosResponse.docs);
         setArticles(articlesResponse.docs);
       } catch (err) {
-        console.error('Error loading home data:', err);
+        // Error loading data - silently fail
       } finally {
         setLoading(false);
       }
@@ -99,7 +99,7 @@ export default function TabTwoScreen() {
               {articles.map((article) => (
                 <View style={styles.cardWrapper} key={article.id}>
                   <Card
-                    image={article.photo}
+                    image={getArticlePhotoUrl(article)}
                     label="ARTICLE"
                     chipVariant="article"
                     title={article.title}

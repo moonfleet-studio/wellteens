@@ -6,6 +6,7 @@ import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
 import { Chip } from '@/components/ui/chip';
 import { Fonts } from '@/constants/theme';
+import { getArticlePhotoUrl } from '@/lib/api/articles';
 import { fetchModuleById, getModuleImage, type Module } from '@/lib/api/modules';
 import { getMediaUrl } from '@/lib/api/videos';
 
@@ -103,7 +104,7 @@ export default function ModuleDetailScreen() {
               {module.articles.map((article) => (
                 <Card
                   key={article.id}
-                  image={article.photo}
+                  image={getArticlePhotoUrl(article)}
                   label="ARTICLE"
                   chipVariant="article"
                   title={article.title}

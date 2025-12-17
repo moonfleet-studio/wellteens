@@ -4,7 +4,7 @@ import { ActivityIndicator, Image, SafeAreaView, ScrollView, StyleSheet, Touchab
 
 import { ThemedText } from '@/components/themed-text';
 import { Chip } from '@/components/ui/chip';
-import { extractTextFromContent, fetchArticleById, type Article } from '@/lib/api/articles';
+import { extractTextFromContent, fetchArticleById, getArticlePhotoUrl, type Article } from '@/lib/api/articles';
 
 export default function ArticleDetailScreen() {
   const router = useRouter();
@@ -66,7 +66,7 @@ export default function ArticleDetailScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.heroWrapper}>
           <Image 
-            source={{ uri: article.photo }} 
+            source={{ uri: getArticlePhotoUrl(article) }} 
             style={styles.heroImage} 
             resizeMode="cover" 
           />
