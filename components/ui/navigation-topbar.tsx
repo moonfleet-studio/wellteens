@@ -1,11 +1,14 @@
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { LayoutChangeEvent, StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import { LayoutChangeEvent, Modal, Pressable, StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
+import { ThemedText } from '@/components/themed-text';
+import { Button } from '@/components/ui/button';
 import LogoIcon from '@/components/ui/icons/Logo';
 import ProfileIcon from '@/components/ui/icons/Profile';
+import { useAuth } from '@/context/AuthContext';
 
 const VIEWBOX = { width: 393, height: 110 };
 const MAIN_PATH_D = 'M0 0H393V64.8225C393 64.8225 339.5 78 196.5 78C53.5 78 0 64.8225 0 64.8225V0Z';
@@ -26,6 +29,8 @@ export function NavigationTopBar({
 }: NavigationTopBarProps) {
   const insets = useSafeAreaInsets();
   const [width, setWidth] = React.useState(0);
+  const [showLogoutMenu, setShowLogoutMenu] = React.useState(false);
+  const { logout } = useAuth();
 
   const gradientId = React.useId();
   const shadowGradientId = `${gradientId}-shadow`;
@@ -42,18 +47,29 @@ export function NavigationTopBar({
     return Math.min(calculated, 105);
   }, [width]);
 
+  const handleLogout = React.useCallback(async () => {
+    setShowLogoutMenu(false);
+    await logout();
+  }, [logout]);
+
   const paddingTop = (includeSafeAreaInset ? insets.top : 0) + 12;
   const defaultContent = (
     <View style={styles.defaultRow}>
       <LogoIcon variant="gradient" width={36} height={16} />
-      <ExpoLinearGradient
-        colors={['#FFFFFF', 'rgba(255,255,255,0.5)']}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        style={styles.profileBadge}
+      <TouchableOpacity 
+        onPress={() => setShowLogoutMenu(true)}
+        accessibilityRole="button"
+        accessibilityLabel="Profile menu"
       >
-        <ProfileIcon size={19} color="rgba(0,0,0,0.87)" />
-      </ExpoLinearGradient>
+        <ExpoLinearGradient
+          colors={['#FFFFFF', 'rgba(255,255,255,0.5)']}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          style={styles.profileBadge}
+        >
+          <ProfileIcon size={19} color="rgba(0,0,0,0.87)" />
+        </ExpoLinearGradient>
+      </TouchableOpacity>
     </View>
   );
   const renderedContent = children ?? defaultContent;
@@ -98,6 +114,30 @@ export function NavigationTopBar({
         </Svg>
       </View>
       <View style={[styles.content, { paddingTop }, contentContainerStyle]}>{renderedContent}</View>
+
+      {/* Logout Menu Modal */}
+      <Modal
+        visible={showLogoutMenu}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowLogoutMenu(false)}
+      >
+        <Pressable 
+          style={styles.modalOverlay} 
+          onPress={() => setShowLogoutMenu(false)}
+        >
+          <View style={styles.menuContainer}>
+            <Button
+              onPress={handleLogout}
+              variant="secondary"
+              style={styles.logoutButton}
+              size='regular'
+            >
+              <ThemedText style={styles.logoutButtonText}>Logout</ThemedText>
+            </Button>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   );
 }
@@ -134,5 +174,31 @@ const styles = StyleSheet.create({
     borderRadius: 100,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-start',
+    alignItems: 'flex-end',
+    paddingTop: 60,
+    paddingRight: 24,
+  },
+  menuContainer: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 5,
+    minWidth: 150,
+    padding: 12,
+  },
+  logoutButton: {
+    width: '100%',
+  },
+  logoutButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

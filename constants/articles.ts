@@ -1,3 +1,7 @@
+/**
+ * @deprecated Use Article type from '@/lib/api/articles' instead
+ * This file is kept for backward compatibility with mock data
+ */
 export type ArticleContent = {
   id: string;
   title: string;
@@ -7,6 +11,10 @@ export type ArticleContent = {
   content: string[];
 };
 
+/**
+ * @deprecated Mock data - replaced by API integration
+ * Use fetchArticles() from '@/lib/api/articles' instead
+ */
 export const ARTICLE_LIBRARY: ArticleContent[] = [
   {
     id: 'article-01',
@@ -49,6 +57,9 @@ export const ARTICLE_LIBRARY: ArticleContent[] = [
   },
 ];
 
+/**
+ * @deprecated Use fetchArticleById() from '@/lib/api/articles' instead
+ */
 export function getArticleById(id?: string) {
   if (!id) return undefined;
   return ARTICLE_LIBRARY.find((article) => article.id === id);

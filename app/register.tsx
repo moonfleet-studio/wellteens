@@ -14,6 +14,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -46,10 +47,12 @@ export default function RegisterScreen() {
       await register({ email: email.trim(), password });
       router.replace('/(tabs)');
     } catch (err) {
+      console.error('Registration error:', err);
       if (err instanceof ApiError) {
         setError(err.message || 'Registration failed. Please try again.');
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+        setError(`${errorMessage}. Please try again.`);
       }
     } finally {
       setIsLoading(false);
@@ -123,12 +126,23 @@ export default function RegisterScreen() {
               )}
             </Button>
 
+            <TouchableOpacity
+              accessibilityRole="button"
+              onPress={() => router.push('/login')}
+              style={styles.loginLinkContainer}
+            >
+              <ThemedText style={styles.loginLinkText}>
+                Already have an account?{' '}
+                <ThemedText style={styles.loginLinkAction}>Log in</ThemedText>
+              </ThemedText>
+            </TouchableOpacity>
+
             <Text style={styles.footerCaption}>
               EU Programme Erasmus+ KA2 Cooperation Partnership YOUTH{'\n'}
               Reference n. 2023-2-IT03-KA220-YOU-000176636
             </Text>
           </View>
-        </ScrollView>
+        </ScrollView>§
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -181,5 +195,17 @@ const styles = StyleSheet.create({
     fontSize: 7,
     fontWeight: '500',
     marginTop: 32,
+  },
+  loginLinkContainer: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  loginLinkText: {
+    color: '#6B7280',
+    fontSize: 14,
+  },
+  loginLinkAction: {
+    color: '#2563EB',
+    fontWeight: '600',
   },
 });

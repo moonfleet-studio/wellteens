@@ -1,24 +1,53 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import React, { useMemo } from 'react';
-import { Image, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, Image, SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { Chip } from '@/components/ui/chip';
-import { getArticleById } from '@/constants/articles';
+import { extractTextFromContent, fetchArticleById, type Article } from '@/lib/api/articles';
 
 export default function ArticleDetailScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id?: string }>();
+  const [article, setArticle] = useState<Article | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const article = useMemo(
-    () => getArticleById(typeof id === 'string' ? id : Array.isArray(id) ? id[0] : undefined),
-    [id]
-  );
+  useEffect(() => {
+    const loadArticle = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const articleId = typeof id === 'string' ? parseInt(id) : Array.isArray(id) ? parseInt(id[0]) : 0;
+        const data = await fetchArticleById(articleId);
+        setArticle(data);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load article');
+        console.error('Error loading article:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  if (!article) {
+    if (id) {
+      loadArticle();
+    }
+  }, [id]);
+
+  if (loading) {
     return (
       <SafeAreaView style={[styles.safeArea, styles.centered]}>
-        <ThemedText style={styles.emptyTitle}>Article not found.</ThemedText>
+        <ActivityIndicator size="large" color="#FFD07D" />
+      </SafeAreaView>
+    );
+  }
+
+  if (error || !article) {
+    return (
+      <SafeAreaView style={[styles.safeArea, styles.centered]}>
+        <ThemedText style={styles.emptyTitle}>
+          {error || 'Article not found.'}
+        </ThemedText>
         <TouchableOpacity
           accessibilityRole="button"
           onPress={() => router.back()}
@@ -30,22 +59,28 @@ export default function ArticleDetailScreen() {
     );
   }
 
+  const contentParagraphs = extractTextFromContent(article.content);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.heroWrapper}>
-          <Image source={{ uri: article.image }} style={styles.heroImage} resizeMode="cover" />
+          <Image 
+            source={{ uri: article.photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80' }} 
+            style={styles.heroImage} 
+            resizeMode="cover" 
+          />
           <View style={styles.heroContent}>
-            <Chip variant="article" label={article.categoryLabel} />
+            <Chip variant="article" label="ARTICLE" />
             <ThemedText type="title" style={styles.title}>
               {article.title}
             </ThemedText>
-            <ThemedText style={styles.subtitle}>{article.description}</ThemedText>
+            <ThemedText style={styles.subtitle}>{article.lead}</ThemedText>
           </View>
         </View>
 
         <View style={styles.body}>
-          {article.content.map((paragraph, index) => (
+          {contentParagraphs.map((paragraph, index) => (
             <ThemedText key={index} style={styles.paragraph}>
               {paragraph}
             </ThemedText>

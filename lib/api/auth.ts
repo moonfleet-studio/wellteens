@@ -1,9 +1,26 @@
 import { apiFetch, clearAuthData, setAuthData } from './client';
 
+export interface Session {
+  id: string;
+  createdAt: string;
+  expiresAt: string;
+}
+
+export interface User {
+  id: number;
+  updatedAt: string | null;
+  createdAt: string;
+  email: string;
+  sessions: Session[];
+  collection: string;
+  _strategy: string;
+}
+
 export interface LoginResponse {
   message: string;
   exp: number;
   token: string;
+  user: User;
 }
 
 export interface LoginCredentials {
@@ -33,7 +50,12 @@ export async function login(credentials: LoginCredentials): Promise<LoginRespons
   });
 
   // Store the token and expiration
-  await setAuthData(response.token, response.exp);
+  try {
+    await setAuthData(response.token, response.exp);
+  } catch (storageError) {
+    console.error('Failed to store auth data:', storageError);
+    throw new Error('Failed to save login credentials securely');
+  }
 
   return response;
 }

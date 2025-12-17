@@ -7,13 +7,14 @@ import { ApiError } from '@/lib/api/client';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
-    ActivityIndicator,
-    KeyboardAvoidingView,
-    Platform,
-    ScrollView,
-    StyleSheet,
-    Text,
-    View,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -39,10 +40,12 @@ export default function LoginScreen() {
       await login({ email: email.trim(), password });
       router.replace('/(tabs)');
     } catch (err) {
+      console.error('Login error:', err);
       if (err instanceof ApiError) {
         setError(err.message || 'Login failed. Please check your credentials.');
       } else {
-        setError('An unexpected error occurred. Please try again.');
+        const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
+        setError(`${errorMessage}. Please try again.`);
       }
     } finally {
       setIsLoading(false);
@@ -108,6 +111,12 @@ export default function LoginScreen() {
               )}
             </Button>
 
+            <TouchableOpacity onPress={() => router.push('/register')} style={styles.registerLink}>
+              <Text style={styles.registerText}>
+                Don&apos;t have an account? <Text style={styles.registerTextBold}>Sign up</Text>
+              </Text>
+            </TouchableOpacity>
+
             <Text style={styles.footerCaption}>
               EU Programme Erasmus+ KA2 Cooperation Partnership YOUTH{'\n'}
               Reference n. 2023-2-IT03-KA220-YOU-000176636
@@ -156,6 +165,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: '#1C1C1C',
+  },
+  registerLink: {
+    marginTop: 16,
+    alignItems: 'center',
+  },
+  registerText: {
+    fontSize: 14,
+    color: '#6B7280',
+  },
+  registerTextBold: {
+    fontWeight: '600',
+    color: '#12A5E5',
   },
   footerCaption: {
     color: '#000',

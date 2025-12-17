@@ -1,6 +1,7 @@
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
-export const API_BASE_URL = 'http://72.61.89.247';
+export const API_BASE_URL = 'https://wellteens.mfleet.io';
 
 export const AUTH_TOKEN_KEY = 'auth_token';
 export const AUTH_USER_KEY = 'auth_user';
@@ -11,8 +12,12 @@ export const AUTH_EXP_KEY = 'auth_exp';
  */
 export async function getAuthToken(): Promise<string | null> {
   try {
+    if (Platform.OS === 'web') {
+      return localStorage.getItem(AUTH_TOKEN_KEY);
+    }
     return await SecureStore.getItemAsync(AUTH_TOKEN_KEY);
-  } catch {
+  } catch (error) {
+    console.error('Error getting auth token:', error);
     return null;
   }
 }
@@ -21,17 +26,37 @@ export async function getAuthToken(): Promise<string | null> {
  * Store auth data securely
  */
 export async function setAuthData(token: string, exp: number): Promise<void> {
-  await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
-  await SecureStore.setItemAsync(AUTH_EXP_KEY, exp.toString());
+  try {
+    if (Platform.OS === 'web') {
+      localStorage.setItem(AUTH_TOKEN_KEY, token);
+      localStorage.setItem(AUTH_EXP_KEY, exp.toString());
+    } else {
+      await SecureStore.setItemAsync(AUTH_TOKEN_KEY, token);
+      await SecureStore.setItemAsync(AUTH_EXP_KEY, exp.toString());
+    }
+  } catch (error) {
+    console.error('Error storing auth data:', error);
+    throw error;
+  }
 }
 
 /**
  * Clear all auth data
  */
 export async function clearAuthData(): Promise<void> {
-  await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
-  await SecureStore.deleteItemAsync(AUTH_USER_KEY);
-  await SecureStore.deleteItemAsync(AUTH_EXP_KEY);
+  try {
+    if (Platform.OS === 'web') {
+      localStorage.removeItem(AUTH_TOKEN_KEY);
+      localStorage.removeItem(AUTH_USER_KEY);
+      localStorage.removeItem(AUTH_EXP_KEY);
+    } else {
+      await SecureStore.deleteItemAsync(AUTH_TOKEN_KEY);
+      await SecureStore.deleteItemAsync(AUTH_USER_KEY);
+      await SecureStore.deleteItemAsync(AUTH_EXP_KEY);
+    }
+  } catch (error) {
+    console.error('Error clearing auth data:', error);
+  }
 }
 
 /**
@@ -39,12 +64,20 @@ export async function clearAuthData(): Promise<void> {
  */
 export async function isTokenExpired(): Promise<boolean> {
   try {
-    const exp = await SecureStore.getItemAsync(AUTH_EXP_KEY);
+    let exp: string | null = null;
+    
+    if (Platform.OS === 'web') {
+      exp = localStorage.getItem(AUTH_EXP_KEY);
+    } else {
+      exp = await SecureStore.getItemAsync(AUTH_EXP_KEY);
+    }
+    
     if (!exp) return true;
     
     const expTimestamp = parseInt(exp, 10) * 1000; // Convert to milliseconds
     return Date.now() >= expTimestamp;
-  } catch {
+  } catch (error) {
+    console.error('Error checking token expiration:', error);
     return true;
   }
 }
