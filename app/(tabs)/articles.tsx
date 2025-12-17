@@ -46,7 +46,7 @@ export default function Articles() {
           {articles.map((article) => (
             <Card
               key={article.id}
-              image={article.photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80'}
+              image={article.photo}
               label="ARTICLE"
               chipVariant="article"
               title={article.title}

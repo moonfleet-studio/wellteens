@@ -41,6 +41,7 @@ export function JournalEntryForm() {
   const safeArea = useSafeAreaInsets();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   const translateY = useRef(new Animated.Value(1000)).current;
   const opacity = useRef(new Animated.Value(0)).current;
@@ -83,24 +84,29 @@ export function JournalEntryForm() {
     openMoodDrawer();
   };
 
-  const handleSave = () => {
-    if (!canSave) return;
+  const handleSave = async () => {
+    if (!canSave || isSaving) return;
 
-    if (isEditing && editingEntry) {
-      updateJournalEntry({
-        ...editingEntry,
-        title: title.trim(),
-        body: body.trim(),
-        moodValue: selectedMood.value,
-        moodLabel: selectedMood.label,
-      });
-    } else {
-      addJournalEntry({
-        title: title.trim(),
-        body: body.trim(),
-        moodValue: selectedMood.value,
-        moodLabel: selectedMood.label,
-      });
+    setIsSaving(true);
+    try {
+      if (isEditing && editingEntry) {
+        await updateJournalEntry({
+          ...editingEntry,
+          title: title.trim(),
+          body: body.trim(),
+          moodValue: selectedMood.value,
+          moodLabel: selectedMood.label,
+        });
+      } else {
+        await addJournalEntry({
+          title: title.trim(),
+          body: body.trim(),
+          moodValue: selectedMood.value,
+          moodLabel: selectedMood.label,
+        });
+      }
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -170,18 +176,18 @@ export function JournalEntryForm() {
             <Pressable
               onPress={handleSave}
               accessibilityRole="button"
-              accessibilityState={{ disabled: !canSave }}
-              disabled={!canSave}
-              style={[styles.saveButton, !canSave && styles.saveButtonDisabled]}
+              accessibilityState={{ disabled: !canSave || isSaving }}
+              disabled={!canSave || isSaving}
+              style={[styles.saveButton, (!canSave || isSaving) && styles.saveButtonDisabled]}
             >
               <LinearGradient
-                colors={canSave ? ['#FFEECF', '#FFD07D'] : ['#E8E8E8', '#D4D4D4']}
+                colors={canSave && !isSaving ? ['#FFEECF', '#FFD07D'] : ['#E8E8E8', '#D4D4D4']}
                 start={{ x: 0, y: 0.5 }}
                 end={{ x: 1, y: 0.5 }}
                 style={styles.saveButtonGradient}
               >
-                <ThemedText style={[styles.saveLabel, !canSave && styles.saveLabelDisabled]}>
-                  Save
+                <ThemedText style={[styles.saveLabel, (!canSave || isSaving) && styles.saveLabelDisabled]}>
+                  {isSaving ? 'Saving...' : 'Save'}
                 </ThemedText>
               </LinearGradient>
             </Pressable>

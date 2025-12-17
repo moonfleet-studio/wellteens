@@ -7,40 +7,76 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import HalfIcon from '@/components/ui/icons/HalfIcom';
 import { MoodHistoryCard } from '@/components/ui/mood-history-card';
 import TabScreen from '@/components/ui/tab-screen';
+import { fetchJournalEntries, type JournalEntry } from '@/lib/api/journal';
 import { useMoodHistory } from '@/lib/mood-history';
-import React, { useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 function getMoodKey(value: number): AlertVariant {
-  if (value <= 1) return 'awfull';
-  if (value <= 2) return 'sad';
-  if (value <= 3) return 'fine';
-  if (value <= 4) return 'relaxed';
+  if (value === 0) return 'awfull';
+  if (value === 1) return 'sad';
+  if (value === 2) return 'fine';
+  if (value === 3) return 'relaxed';
   return 'amazing';
 }
 
 export default function Journal() {
-  const { openJournalEntry, openEditJournalEntry } = useMoodDrawer();
-  const { allEntries, moodHistory } = useMoodHistory();
+  const { openJournalEntry, openEditJournalEntry, addJournalEntryChangeListener } = useMoodDrawer();
+  const { moodHistory } = useMoodHistory();
+  const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadJournalEntries = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await fetchJournalEntries(1, 100);
+      setJournalEntries(response.docs);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to load journal entries');
+      console.error('Error loading journal entries:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadJournalEntries();
+  }, [loadJournalEntries]);
+
+  // Register refresh callback
+  useEffect(() => {
+    const unsubscribe = addJournalEntryChangeListener(loadJournalEntries);
+    return unsubscribe;
+  }, [addJournalEntryChangeListener, loadJournalEntries]);
 
   const displayEntries = useMemo(() => {
-    return allEntries.map((entry) => {
-      const moodVariant = getMoodKey(entry.moodValue);
+    return journalEntries.map((entry) => {
+      const moodVariant = getMoodKey(entry.mood.value);
       return {
-        id: entry.id,
+        id: entry.id.toString(),
         variant: moodVariant,
-        chipLabel: entry.moodLabel.toUpperCase(),
+        chipLabel: entry.mood.name.toUpperCase(),
         title: entry.title,
-        date: entry.date,
-        body: entry.body,
+        date: new Date(entry.createdAt).toLocaleDateString(),
+        body: entry.description,
       };
     });
-  }, [allEntries]);
+  }, [journalEntries]);
 
   const handleEntryPress = (entryId: string) => {
-    const entry = allEntries.find((e) => e.id === entryId);
+    const entry = journalEntries.find((e) => e.id.toString() === entryId);
     if (entry) {
-      openEditJournalEntry(entry);
+      // Convert API entry to legacy format for the drawer
+      openEditJournalEntry({
+        id: entry.id.toString(),
+        title: entry.title,
+        body: entry.description,
+        moodValue: entry.mood.value,
+        moodLabel: entry.mood.name,
+        date: new Date(entry.createdAt).toLocaleDateString(),
+      });
     }
   };
 
@@ -63,20 +99,30 @@ export default function Journal() {
           </ThemedView>
         </ThemedView>
       <ThemedView style={styles.container}>
-        <ThemedView style={styles.entryList}>
-          {displayEntries.map((entry) => (
-            <Alert
-              key={entry.id}
-              variant={entry.variant}
-              chipLabel={entry.chipLabel}
-              title={entry.title}
-              date={entry.date}
-              body={entry.body}
-              style={styles.entryCard}
-              onPress={() => handleEntryPress(entry.id)}
-            />
-          ))}
-        </ThemedView>
+        {loading ? (
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color="#FFD07D" />
+          </View>
+        ) : error ? (
+          <View style={styles.centered}>
+            <ThemedText style={styles.errorText}>{error}</ThemedText>
+          </View>
+        ) : (
+          <ThemedView style={styles.entryList}>
+            {displayEntries.map((entry) => (
+              <Alert
+                key={entry.id}
+                variant={entry.variant}
+                chipLabel={entry.chipLabel}
+                title={entry.title}
+                date={entry.date}
+                body={entry.body}
+                style={styles.entryCard}
+                onPress={() => handleEntryPress(entry.id)}
+              />
+            ))}
+          </ThemedView>
+        )}
       </ThemedView>
     </TabScreen>
   );
@@ -86,9 +132,6 @@ const styles = StyleSheet.create({
   buttonRowWrapper: {
     paddingHorizontal: 16,
     marginBottom: 16,
-  },
-  container: {
-    paddingHorizontal: 16,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -124,5 +167,16 @@ const styles = StyleSheet.create({
   },
   entryCard: {
     marginBottom: 12,
+  },
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
+  errorText: {
+    color: '#EF4444',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });

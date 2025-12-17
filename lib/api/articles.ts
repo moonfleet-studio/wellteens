@@ -30,7 +30,7 @@ export interface Article {
   title: string;
   author: string;
   lead: string;
-  photo: string | null;
+  photo: string;
   content: ArticleContent;
   updatedAt: string;
   createdAt: string;

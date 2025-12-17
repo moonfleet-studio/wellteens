@@ -66,7 +66,7 @@ export default function ArticleDetailScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.heroWrapper}>
           <Image 
-            source={{ uri: article.photo || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=800&q=80' }} 
+            source={{ uri: article.photo }} 
             style={styles.heroImage} 
             resizeMode="cover" 
           />

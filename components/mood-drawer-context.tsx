@@ -1,4 +1,6 @@
-import React, { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
+import React, { createContext, ReactNode, useCallback, useContext, useMemo, useRef, useState } from 'react';
+
+import { createJournalEntry, getMoodIdByValue, updateJournalEntry as updateJournalEntryApi } from '@/lib/api/journal';
 
 export type MoodState = {
   key: string;
@@ -7,11 +9,11 @@ export type MoodState = {
 };
 
 export const MOOD_STATES: MoodState[] = [
-  { key: 'awfull', label: 'Awfull', value: 1 },
-  { key: 'sad', label: 'Sad', value: 2 },
-  { key: 'fine', label: 'Fine', value: 3 },
-  { key: 'relaxed', label: 'Relaxed', value: 4 },
-  { key: 'amazing', label: 'Amazing', value: 5 },
+  { key: 'awfull', label: 'Awfull', value: 0 },
+  { key: 'sad', label: 'Sad', value: 1 },
+  { key: 'fine', label: 'Fine', value: 2 },
+  { key: 'relaxed', label: 'Relaxed', value: 3 },
+  { key: 'amazing', label: 'Amazing', value: 4 },
 ];
 
 export type JournalEntry = {
@@ -35,10 +37,11 @@ type MoodDrawerContextValue = {
   isJournalFormOpen: boolean;
   confirmMoodSelection: () => void;
   journalEntries: JournalEntry[];
-  addJournalEntry: (entry: Omit<JournalEntry, 'id' | 'date'>) => void;
+  addJournalEntry: (entry: Omit<JournalEntry, 'id' | 'date'>) => Promise<void>;
   editingEntry: JournalEntry | null;
   openEditJournalEntry: (entry: JournalEntry) => void;
-  updateJournalEntry: (entry: JournalEntry) => void;
+  updateJournalEntry: (entry: JournalEntry) => Promise<void>;
+  addJournalEntryChangeListener: (callback: () => void) => () => void;
 };
 
 const MoodDrawerContext = createContext<MoodDrawerContextValue | null>(null);
@@ -54,6 +57,7 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
   const [selectedMoodIndex, setSelectedMoodIndex] = useState(2);
   const [journalEntries, setJournalEntries] = useState<JournalEntry[]>([]);
   const [editingEntry, setEditingEntry] = useState<JournalEntry | null>(null);
+  const listenersRef = useRef<Set<() => void>>(new Set());
 
   const openMoodDrawer = useCallback(() => {
     setMoodDrawerOpen(true);
@@ -62,6 +66,17 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
   const closeMoodDrawer = useCallback(() => {
     setMoodDrawerOpen(false);
     setIsJournalMode(false);
+  }, []);
+
+  const addJournalEntryChangeListener = useCallback((callback: () => void) => {
+    listenersRef.current.add(callback);
+    return () => {
+      listenersRef.current.delete(callback);
+    };
+  }, []);
+
+  const notifyListeners = useCallback(() => {
+    listenersRef.current.forEach((callback) => callback());
   }, []);
 
   const openJournalEntry = useCallback(() => {
@@ -91,36 +106,85 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
     setIsJournalFormOpen(true);
   }, []);
 
-  const addJournalEntry = useCallback((entry: Omit<JournalEntry, 'id' | 'date'>) => {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    }).replace(/\//g, '.');
+  const addJournalEntry = useCallback(async (entry: Omit<JournalEntry, 'id' | 'date'>) => {
+    try {
+      // Get mood ID from mood value
+      const moodId = getMoodIdByValue(entry.moodValue);
+      
+      // Create journal entry via API
+      const apiResponse = await createJournalEntry({
+        title: entry.title,
+        description: entry.body,
+        mood: moodId,
+      });
 
-    const newEntry: JournalEntry = {
-      ...entry,
-      id: `entry-${Date.now()}`,
-      date: dateStr,
-    };
+      // Handle PayloadCMS response which may wrap the document in 'doc'
+      const doc = (apiResponse as any).doc || apiResponse;
 
-    setJournalEntries((prev) => [newEntry, ...prev]);
-    setIsJournalFormOpen(false);
-    setIsJournalMode(false);
-    setSelectedMoodIndex(2);
-    setEditingEntry(null);
-  }, []);
+      // Add to local state for immediate UI update
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+      }).replace(/\//g, '.');
 
-  const updateJournalEntry = useCallback((updatedEntry: JournalEntry) => {
-    setJournalEntries((prev) =>
-      prev.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry))
-    );
-    setIsJournalFormOpen(false);
-    setIsJournalMode(false);
-    setSelectedMoodIndex(2);
-    setEditingEntry(null);
-  }, []);
+      const newEntry: JournalEntry = {
+        ...entry,
+        id: doc.id?.toString() || Date.now().toString(),
+        date: dateStr,
+      };
+
+      setJournalEntries((prev) => [newEntry, ...prev]);
+      setIsJournalFormOpen(false);
+      setIsJournalMode(false);
+      setSelectedMoodIndex(2);
+      setEditingEntry(null);
+      
+      // Trigger refresh callback
+      notifyListeners();
+    } catch (error) {
+      console.error('Error creating journal entry:', error);
+      // Still close the form even if API fails
+      setIsJournalFormOpen(false);
+      setIsJournalMode(false);
+      setSelectedMoodIndex(2);
+      setEditingEntry(null);
+    }
+  }, [notifyListeners]);
+
+  const updateJournalEntry = useCallback(async (updatedEntry: JournalEntry) => {
+    try {
+      // Get mood ID from mood value
+      const moodId = getMoodIdByValue(updatedEntry.moodValue);
+      
+      // Update journal entry via API
+      await updateJournalEntryApi(parseInt(updatedEntry.id), {
+        title: updatedEntry.title,
+        description: updatedEntry.body,
+        mood: moodId,
+      });
+
+      // Update local state for immediate UI update
+      setJournalEntries((prev) =>
+        prev.map((entry) => (entry.id === updatedEntry.id ? updatedEntry : entry))
+      );
+      setIsJournalFormOpen(false);
+      setIsJournalMode(false);
+      setSelectedMoodIndex(2);
+      setEditingEntry(null);
+      
+      // Trigger refresh callback
+      notifyListeners();
+    } catch (error) {
+      console.error('Error updating journal entry:', error);
+      // Still close the form even if API fails
+      setIsJournalFormOpen(false);
+      setIsJournalMode(false);
+      setSelectedMoodIndex(2);
+      setEditingEntry(null);
+    }
+  }, [notifyListeners]);
 
   const contextValue = useMemo(
     () => ({
@@ -139,6 +203,7 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
       editingEntry,
       openEditJournalEntry,
       updateJournalEntry,
+      addJournalEntryChangeListener,
     }),
     [
       isMoodDrawerOpen,
@@ -155,6 +220,7 @@ export function MoodDrawerProvider({ children }: MoodDrawerProviderProps) {
       editingEntry,
       openEditJournalEntry,
       updateJournalEntry,
+      addJournalEntryChangeListener,
     ]
   );
 

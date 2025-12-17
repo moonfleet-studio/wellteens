@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -10,13 +10,17 @@ import { Divider } from '@/components/ui/divider';
 import { ModulesCarousel } from '@/components/ui/modules-carousel';
 import { MoodQuickAddCard } from '@/components/ui/mood-quick-add-card';
 import TabScreen from '@/components/ui/tab-screen';
-import { ARTICLE_LIBRARY } from '@/constants/articles';
 import { Fonts } from '@/constants/theme';
-import { VIDEO_LIBRARY } from '@/constants/videos';
+import { fetchArticles, type Article } from '@/lib/api/articles';
 import { useMoodHistory } from '@/lib/mood-history';
-
-const featuredVideos = VIDEO_LIBRARY.slice(0, 3);
-const featuredArticles = ARTICLE_LIBRARY.slice(0, 3);
+import {
+  fetchVideos,
+  getMediaUrl,
+  getVideoDescription,
+  getVideoDuration,
+  getVideoTitle,
+  type Video,
+} from '@/lib/api/videos';
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
@@ -29,6 +33,29 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
 export default function TabTwoScreen() {
   const router = useRouter();
   const { moodHistory } = useMoodHistory();
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [videosResponse, articlesResponse] = await Promise.all([
+          fetchVideos(1, 3),
+          fetchArticles(1, 3),
+        ]);
+        setVideos(videosResponse.docs);
+        setArticles(articlesResponse.docs);
+      } catch (err) {
+        console.error('Error loading home data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
 
   return (
     <TabScreen>
@@ -42,48 +69,56 @@ export default function TabTwoScreen() {
       </ThemedView>
       <Divider />
 
-      <SectionTitle>Videos</SectionTitle>
-      <ThemedView style={styles.section}>
-        <View style={styles.cardList}>
-          {featuredVideos.map((video) => (
-            <View style={styles.cardWrapper} key={video.id}>
-              <Card
-                image={video.image}
-                label="VIDEO"
-                chipVariant="videoCompact"
-                title={video.title}
-                description={video.description}
-                meta={video.duration}
-                onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id } })}
-              />
-            </View>
-          ))}
+      {loading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#FFD07D" />
         </View>
-        <Button variant="secondary" onPress={() => router.push('/videos')} style={styles.sectionButton}>
-          <ThemedText style={styles.buttonLabel}>See all Videos</ThemedText>
-        </Button>
-      </ThemedView>
+      ) : (
+        <>
+          <SectionTitle>Videos</SectionTitle>
+          <ThemedView style={styles.section}>
+            <View style={styles.cardList}>
+              {videos.map((video) => (
+                <View style={styles.cardWrapper} key={video.id}>
+                  <Card
+                    image={getMediaUrl(video.thumbnail.url)}
+                    label="VIDEO"
+                    chipVariant="videoCompact"
+                    title={getVideoTitle(video)}
+                    description={getVideoDescription(video)}
+                    meta={getVideoDuration(video)}
+                    onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id.toString() } })}
+                  />
+                </View>
+              ))}
+            </View>
+            <Button variant="secondary" onPress={() => router.push('/videos')} style={styles.sectionButton}>
+              <ThemedText style={styles.buttonLabel}>See all Videos</ThemedText>
+            </Button>
+          </ThemedView>
 
-      <ThemedView style={styles.section}>
-        <View style={styles.cardList}>
-          {featuredArticles.map((article) => (
-            <View style={styles.cardWrapper} key={article.id}>
-              <Card
-                image={article.image}
-                label={article.categoryLabel}
-                chipVariant="article"
-                title={article.title}
-                description={article.description}
-                layout="article"
-                onPress={() => router.push({ pathname: '/article/[id]', params: { id: article.id } })}
-              />
+          <ThemedView style={styles.section}>
+            <View style={styles.cardList}>
+              {articles.map((article) => (
+                <View style={styles.cardWrapper} key={article.id}>
+                  <Card
+                    image={article.photo}
+                    label="ARTICLE"
+                    chipVariant="article"
+                    title={article.title}
+                    description={article.lead}
+                    layout="article"
+                    onPress={() => router.push({ pathname: '/article/[id]', params: { id: article.id.toString() } })}
+                  />
+                </View>
+              ))}
             </View>
-          ))}
-        </View>
-        <Button variant="secondary" onPress={() => router.push('/articles')} style={styles.sectionButton}>
-          <ThemedText style={styles.buttonLabel}>Read all Articles</ThemedText>
-        </Button>
-      </ThemedView>
+            <Button variant="secondary" onPress={() => router.push('/articles')} style={styles.sectionButton}>
+              <ThemedText style={styles.buttonLabel}>Read all Articles</ThemedText>
+            </Button>
+          </ThemedView>
+        </>
+      )}
     </TabScreen>
   );
 }
@@ -111,5 +146,11 @@ const styles = StyleSheet.create({
   },
   cardWrapper: {
     marginBottom: 16,
-  }
+  },
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
+  },
 });

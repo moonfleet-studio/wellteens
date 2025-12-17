@@ -1,17 +1,47 @@
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet } from 'react-native';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CardCarousel } from '@/components/ui/card-carousel';
-import { MODULE_LIBRARY } from '@/constants/modules';
 import { Fonts } from '@/constants/theme';
+import { fetchModules, getModuleImage, type Module } from '@/lib/api/modules';
+import { getMediaUrl } from '@/lib/api/videos';
 
 export function ModulesCarousel() {
   const router = useRouter();
+  const [modules, setModules] = useState<Module[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadModules = async () => {
+      try {
+        setLoading(true);
+        const response = await fetchModules(1, 100);
+        setModules(response.docs);
+      } catch (err) {
+        console.error('Error loading modules:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadModules();
+  }, []);
+
+  if (loading) {
+    return (
+      <ThemedView style={styles.container}>
+        <ThemedText type="title" style={styles.title}>
+          Modules
+        </ThemedText>
+        <ActivityIndicator size="large" color="#FFD07D" style={styles.loader} />
+      </ThemedView>
+    );
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -19,21 +49,21 @@ export function ModulesCarousel() {
         Modules
       </ThemedText>
       <CardCarousel
-        data={MODULE_LIBRARY}
-        keyExtractor={(item) => item.id}
+        data={modules}
+        keyExtractor={(item) => item.id.toString()}
         height={240}
         peek={36}
         parallaxOffset={32}
         gap={18}
         renderItem={(item) => (
           <Card
-            image={item.image}
-            title={item.title}
+            image={getMediaUrl(getModuleImage(item))}
+            title={item.name}
             description={item.description}
             label="MODULE"
-            chipVariant={item.chipVariant}
+            chipVariant="module"
             layout='module'
-            onPress={() => router.push({ pathname: '/module/[id]', params: { id: item.id } })}
+            onPress={() => router.push({ pathname: '/module/[id]', params: { id: item.id.toString() } })}
           />
         )}
         style={styles.carousel}
@@ -66,5 +96,8 @@ const styles = StyleSheet.create({
   },
   buttonLabel: {
     color: '#1C1C1C',
+  },
+  loader: {
+    marginVertical: 40,
   },
 });
