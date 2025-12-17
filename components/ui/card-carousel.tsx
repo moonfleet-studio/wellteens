@@ -4,20 +4,12 @@ import {
   LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Platform,
   StyleProp,
   StyleSheet,
   TouchableOpacity,
   View,
   ViewStyle,
 } from 'react-native';
-import type { PanGestureHandlerProps } from 'react-native-gesture-handler';
-
-// Conditionally require native-only carousel to avoid crash on web
-const isWeb = Platform.OS === 'web';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const Carousel = isWeb ? null : require('react-native-snap-carousel').default;
-type CarouselRenderItemInfo<T> = { item: T; index: number };
 
 export type CardCarouselRenderItem<T> = (item: T, index: number) => ReactNode;
 
@@ -28,9 +20,7 @@ type CardCarouselProps<T> = {
   height?: number;
   peek?: number;
   loop?: boolean;
-  parallaxOffset?: number;
   gap?: number;
-  panGestureHandlerProps?: PanGestureHandlerProps;
   style?: StyleProp<ViewStyle>;
 };
 
@@ -43,19 +33,14 @@ export function CardCarousel<T>({
   height = 280,
   peek = 32,
   loop = false,
-  parallaxOffset = 52,
   gap = 16,
-  panGestureHandlerProps: _panGestureHandlerProps,
   style,
 }: CardCarouselProps<T>) {
   const [containerWidth, setContainerWidth] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
-  const carouselRef = useRef<any>(null);
-  const webListRef = useRef<FlatList<T> | null>(null);
+  const listRef = useRef<FlatList<T> | null>(null);
   const carouselData = useMemo(() => [...data], [data]);
   const safePeek = Math.max(0, peek);
-  const halfGap = Math.max(0, gap / 2);
-  const isWeb = Platform.OS === 'web';
 
   const trackWidth = useMemo(() => {
     if (containerWidth <= 0) return 0;
@@ -71,26 +56,10 @@ export function CardCarousel<T>({
 
   const carouselItemWidth = useMemo(() => (slideWidth > 0 ? slideWidth + gap : 0), [slideWidth, gap]);
 
-  const containerHorizontalPadding = useMemo(
-    () => (halfGap > 0 ? Math.max(0, safePeek - halfGap) : safePeek),
-    [halfGap, safePeek]
-  );
-
   const extendedListWidth = useMemo(() => {
     if (containerWidth <= 0) return undefined;
     return containerWidth + safePeek * 2;
   }, [containerWidth, safePeek]);
-
-  const slideParallaxStyle = useMemo(() => {
-    if (!parallaxOffset) return null;
-    return {
-      transform: [
-        {
-          translateX: Math.max(-safePeek, Math.min(parallaxOffset, safePeek)) * 0.15,
-        },
-      ],
-    };
-  }, [parallaxOffset, safePeek]);
 
   const handleLayout = useCallback(
     (event: LayoutChangeEvent) => {
@@ -102,38 +71,25 @@ export function CardCarousel<T>({
     [containerWidth]
   );
 
-  const handleSnap = useCallback(
-    (index: number) => {
-      if (carouselData.length === 0) return;
-      const clampedIndex = Math.max(0, Math.min(index, carouselData.length - 1));
-      setActiveIndex((prev) => (prev === clampedIndex ? prev : clampedIndex));
-    },
-    [carouselData.length]
-  );
-
   const handleDotPress = useCallback(
     (index: number) => {
-      if (isWeb) {
-        webListRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.5 });
-        return;
-      }
-      carouselRef.current?.snapToItem(index, true);
+      listRef.current?.scrollToIndex({ index, animated: true, viewPosition: 0.5 });
     },
-    [isWeb]
+    []
   );
 
   const snapInterval = useMemo(() => (carouselItemWidth > 0 ? carouselItemWidth : 0), [carouselItemWidth]);
 
-  const handleWebScroll = useCallback(
+  const handleScroll = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      if (!isWeb || snapInterval <= 0 || carouselData.length === 0) return;
+      if (snapInterval <= 0 || carouselData.length === 0) return;
       const offsetX = event.nativeEvent.contentOffset.x;
       if (!Number.isFinite(offsetX)) return;
       const rawIndex = Math.round(offsetX / snapInterval);
       const clampedIndex = Math.max(0, Math.min(rawIndex, carouselData.length - 1));
       setActiveIndex((prev) => (prev === clampedIndex ? prev : clampedIndex));
     },
-    [carouselData.length, isWeb, snapInterval]
+    [carouselData.length, snapInterval]
   );
 
   const shouldRenderCarousel = carouselItemWidth > 0 && carouselData.length > 0;
@@ -141,63 +97,36 @@ export function CardCarousel<T>({
   return (
     <View style={[styles.container, style]} onLayout={handleLayout}>
       {shouldRenderCarousel ? (
-        isWeb ? (
-          <FlatList
-            ref={webListRef}
-            style={[styles.webList, { marginHorizontal: -safePeek, width: extendedListWidth }]}
-            contentContainerStyle={[styles.webListContent, { paddingHorizontal: safePeek }]}
-            data={carouselData}
-            keyExtractor={keyExtractor}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            decelerationRate="fast"
-            snapToInterval={snapInterval}
-            snapToAlignment="center"
-            disableIntervalMomentum
-            onScroll={handleWebScroll}
-            onMomentumScrollEnd={handleWebScroll}
-            onScrollEndDrag={handleWebScroll}
-            scrollEventThrottle={16}
-            renderItem={({ item, index }: { item: T; index: number }) => (
-              <View
-                style={[
-                  styles.slide,
-                  {
-                    width: slideWidth,
-                    marginRight: index === carouselData.length - 1 ? 0 : gap,
-                  },
-                ]}
-              >
-                {renderItem(item, index)}
-              </View>
-            )}
-          />
-        ) : (
-          <Carousel
-            ref={carouselRef}
-            items={carouselData}
-            renderItem={(info: CarouselRenderItemInfo<T>) => renderItem(info.item, info.index)}
-            sliderWidth={containerWidth}
-            itemWidth={carouselItemWidth}
-            containerCustomStyle={[styles.carouselShell, { height }]}
-            contentContainerCustomStyle={[styles.carouselContent, { paddingHorizontal: containerHorizontalPadding }]}
-            slideStyle={[
-              styles.slide,
-              {
-                width: slideWidth,
-                marginHorizontal: halfGap,
-              },
-              slideParallaxStyle,
-            ]}
-            inactiveSlideScale={1}
-            inactiveSlideOpacity={1}
-            loop={loop}
-            snapOnAndroid
-            enableSnap
-            onSnapToItem={handleSnap}
-            showsHorizontalScrollIndicator={false}
-          />
-        )
+        <FlatList
+          ref={listRef}
+          style={[styles.list, { marginHorizontal: -safePeek, width: extendedListWidth }]}
+          contentContainerStyle={[styles.listContent, { paddingHorizontal: safePeek }]}
+          data={carouselData}
+          keyExtractor={keyExtractor}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          decelerationRate="fast"
+          snapToInterval={snapInterval}
+          snapToAlignment="center"
+          disableIntervalMomentum
+          onScroll={handleScroll}
+          onMomentumScrollEnd={handleScroll}
+          onScrollEndDrag={handleScroll}
+          scrollEventThrottle={16}
+          renderItem={({ item, index }: { item: T; index: number }) => (
+            <View
+              style={[
+                styles.slide,
+                {
+                  width: slideWidth,
+                  marginRight: index === carouselData.length - 1 ? 0 : gap,
+                },
+              ]}
+            >
+              {renderItem(item, index)}
+            </View>
+          )}
+        />
       ) : null}
 
       {carouselData.length > 0 ? (
@@ -222,16 +151,10 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
   },
-  carouselShell: {
+  list: {
     width: '100%',
   },
-  webList: {
-    width: '100%',
-  },
-  webListContent: {
-    paddingVertical: 6,
-  },
-  carouselContent: {
+  listContent: {
     paddingVertical: 6,
   },
   slide: {
