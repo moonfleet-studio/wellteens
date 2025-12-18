@@ -2,7 +2,7 @@ import { useMoodDrawer } from '@/components/mood-drawer-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { IconSymbol } from './icon-symbol';
 
 export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
@@ -18,12 +18,13 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
   return (
     <View style={styles.wrapper} pointerEvents="box-none">
       <View style={styles.container}>
-        <LinearGradient
-          colors={["#F2F2F2", "rgba(241,238,229,0.5)"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0.2 }}
-          style={styles.pill}
-        >
+        <View style={styles.pillWrapper}>
+          <LinearGradient
+            colors={["#F2F2F2", "rgba(241,238,229,0.5)"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0.2 }}
+            style={styles.pill}
+          >
           {tabs.map((t, i) => {
             const focused = state.index === i;
             return (
@@ -45,7 +46,8 @@ export default function CustomTabBar({ state, navigation }: BottomTabBarProps) {
               </Pressable>
             );
           })}
-        </LinearGradient>
+          </LinearGradient>
+        </View>
 
         <Pressable onPress={openJournalEntry} style={styles.fabWrapper} accessibilityRole="button">
           <LinearGradient
@@ -77,21 +79,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  pill: {
+  pillWrapper: {
     flex: 1,
+    borderRadius: 80,
+    overflow: 'hidden',
+    // Native shadow
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 6,
+    // Web-specific styles
+    ...(Platform.OS === 'web' && {
+      boxShadow: '0 4px 4px 0 rgba(0, 0, 0, 0.25)',
+      backdropFilter: 'blur(2px)',
+    }),
+  },
+  pill: {
     borderRadius: 80,
     paddingVertical: 16,
     paddingHorizontal: 12,
     flexDirection: 'row',
     alignItems: 'flex-end',
     justifyContent: 'space-between',
-    // emulate gap by spacing tab items
-    // shadow to match `box-shadow: 0 4px 4px 0 rgba(0,0,0,0.25);`
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 6,
   },
   tabItem: {
     flex: 1,
