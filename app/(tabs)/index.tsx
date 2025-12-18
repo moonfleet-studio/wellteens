@@ -1,111 +1,153 @@
-import { Image } from "expo-image";
-import { Platform, StyleSheet } from "react-native";
+import { useRouter } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
-import { HelloWave } from "@/components/hello-wave";
-import ParallaxScrollView from "@/components/parallax-scroll-view";
-import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
-import { Link } from "expo-router";
+import { ThemedText } from '@/components/themed-text';
+import { ThemedView } from '@/components/themed-view';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Divider } from '@/components/ui/divider';
+import { ModulesCarousel } from '@/components/ui/modules-carousel';
+import { MoodQuickAddCard } from '@/components/ui/mood-quick-add-card';
+import TabScreen from '@/components/ui/tab-screen';
+import { Fonts } from '@/constants/theme';
+import { fetchArticles, type Article } from '@/lib/api/articles';
+import {
+  fetchVideos,
+  getMediaUrl,
+  type Video,
+} from '@/lib/api/videos';
+import { useMoodHistory } from '@/lib/mood-history';
 
-export default function HomeScreen() {
+function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-          source={require("@/assets/images/partial-react-logo.png")}
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="default">WellTeens</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit{" "}
-          <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText>{" "}
-          to see changes. Press{" "}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: "cmd + d",
-              android: "cmd + m",
-              web: "F12",
-            })}
-          </ThemedText>{" "}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.card}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction
-              title="Action"
-              icon="cube"
-              onPress={() => alert("Action pressed")}
-            />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert("Share pressed")}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert("Delete pressed")}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <ThemedText type="title" style={styles.sectionTitle} accessibilityRole="header">
+      {children}
+    </ThemedText>
+  );
+}
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
+export default function TabTwoScreen() {
+  const router = useRouter();
+  const { moodHistory } = useMoodHistory();
+  const [videos, setVideos] = useState<Video[]>([]);
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [videosResponse, articlesResponse] = await Promise.all([
+          fetchVideos(1, 3),
+          fetchArticles(1, 3),
+        ]);
+        setVideos(videosResponse.docs);
+        setArticles(articlesResponse.docs);
+      } catch (err) {
+        console.error('Error loading home data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  return (
+    <TabScreen>
+      <ThemedView style={styles.section}>
+        <MoodQuickAddCard data={moodHistory} />
       </ThemedView>
-      <ThemedView style={styles.card}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">
-            npm run reset-project
-          </ThemedText>{" "}
-          to get a fresh <ThemedText type="defaultSemiBold">app</ThemedText>{" "}
-          directory. This will move the current{" "}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{" "}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
+      <Divider />
+
+      <ThemedView style={styles.section}>
+        <ModulesCarousel />
       </ThemedView>
-    </ParallaxScrollView>
+      <Divider />
+
+      {loading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="#FFD07D" />
+        </View>
+      ) : (
+        <>
+          <SectionTitle>Videos</SectionTitle>
+          <ThemedView style={styles.section}>
+            <View style={styles.cardList}>
+              {videos.map((video) => (
+                <View style={styles.cardWrapper} key={video.id}>
+                  <Card
+                    image={getMediaUrl(video.thumbnail.url)}
+                    label="VIDEO"
+                    chipVariant="videoCompact"
+                    title={video.title}
+                    description={video.description}
+                    meta=""  // Duration not provided by API
+                    onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id.toString() } })}
+                  />
+                </View>
+              ))}
+            </View>
+            <Button variant="secondary" onPress={() => router.push('/videos')} style={styles.sectionButton}>
+              <ThemedText style={styles.buttonLabel}>See all Videos</ThemedText>
+            </Button>
+          </ThemedView>
+
+          <ThemedView style={styles.section}>
+            <View style={styles.cardList}>
+              {articles.map((article) => (
+                <View style={styles.cardWrapper} key={article.id}>
+                  <Card
+                    image={article.photo}
+                    label="ARTICLE"
+                    chipVariant="article"
+                    title={article.title}
+                    description={article.lead}
+                    layout="article"
+                    onPress={() => router.push({ pathname: '/article/[id]', params: { id: article.id.toString() } })}
+                  />
+                </View>
+              ))}
+            </View>
+            <Button variant="secondary" onPress={() => router.push('/articles')} style={styles.sectionButton}>
+              <ThemedText style={styles.buttonLabel}>Read all Articles</ThemedText>
+            </Button>
+          </ThemedView>
+        </>
+      )}
+    </TabScreen>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
+  section: {
+    marginBottom: 32,
   },
-  card: {
-    borderWidth: 1,
-    padding: 8,
-    borderRadius: 8,
-    borderColor: "grey",
-    gap: 8,
+  sectionTitle: {
     marginBottom: 8,
+    textAlign: 'center',
+    fontWeight: '600',
+    fontFamily: Fonts.rounded,
+    fontSize: 20,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: "absolute",
+  sectionButton: {
+    alignSelf: 'center',
+    marginTop: 6,
+  },
+  buttonLabel: {
+    color: '#1C1C1C',
+  },
+  cardList: {
+    width: '100%',
+  },
+  cardWrapper: {
+    marginBottom: 16,
+  },
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 40,
   },
 });
