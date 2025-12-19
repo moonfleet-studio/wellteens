@@ -44,7 +44,7 @@ export function NavigationTopBar({
       return VIEWBOX.height;
     }
     const calculated = (VIEWBOX.height / VIEWBOX.width) * width;
-    return Math.min(calculated, 105);
+    return Math.min(calculated, 115);
   }, [width]);
 
   const handleLogout = React.useCallback(async () => {
@@ -52,7 +52,7 @@ export function NavigationTopBar({
     await logout();
   }, [logout]);
 
-  const paddingTop = (includeSafeAreaInset ? insets.top : 0) + 12;
+  const paddingTop = (includeSafeAreaInset ? insets.top : 0) + 8;
   const defaultContent = (
     <View style={styles.defaultRow}>
       <LogoIcon variant="gradient" width={36} height={16} />
@@ -145,7 +145,7 @@ export function NavigationTopBar({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    maxHeight: 105,
+    maxHeight: 135,
     position: 'relative',
     overflow: 'visible',
   },
@@ -158,9 +158,9 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 24,
-    paddingBottom: 12,
-    minHeight: 66,
-    justifyContent: 'flex-end',
+    paddingBottom: 16,
+    minHeight: 70,
+    justifyContent: 'center',
   },
   defaultRow: {
     width: '100%',
