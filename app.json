@@ -13,7 +13,11 @@
       "bundleIdentifier": "com.moonfleet.wellteens",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
-      }
+      },
+      "associatedDomains": [
+        "applinks:wellteens.app",
+        "applinks:api.wellteens.app"
+      ]
     },
     "android": {
       "adaptiveIcon": {
@@ -24,7 +28,26 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.moonfleet.wellteens"
+      "package": "com.moonfleet.wellteens",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "wellteens.app",
+              "pathPrefix": "/reset-password"
+            },
+            {
+              "scheme": "https",
+              "host": "api.wellteens.app",
+              "pathPrefix": "/reset-password"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     },
     "web": {
       "output": "static",

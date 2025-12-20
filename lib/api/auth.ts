@@ -89,3 +89,42 @@ export async function logout(): Promise<void> {
     await clearAuthData();
   }
 }
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface ResetPasswordRequest {
+  token: string;
+  password: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
+/**
+ * Request password reset email
+ */
+export async function forgotPassword(email: string): Promise<ForgotPasswordResponse> {
+  const response = await apiFetch<ForgotPasswordResponse>('/api/users/forgot-password', {
+    method: 'POST',
+    body: JSON.stringify({ email }),
+    skipAuth: true,
+  });
+
+  return response;
+}
+
+/**
+ * Reset password with token
+ */
+export async function resetPassword(data: ResetPasswordRequest): Promise<ResetPasswordResponse> {
+  const response = await apiFetch<ResetPasswordResponse>('/api/users/reset-password', {
+    method: 'POST',
+    body: JSON.stringify(data),
+    skipAuth: true,
+  });
+
+  return response;
+}
