@@ -98,7 +98,7 @@ export default function TabScreen({
   });
   const navigationBar = (
     <Animated.View style={[styles.navBarWrapper, navBarAnimatedStyle]}>
-      <NavigationTopBar />
+      <NavigationTopBar scrollOffset={scrollOffset} />
     </Animated.View>
   );
 
