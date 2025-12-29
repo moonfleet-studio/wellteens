@@ -35,8 +35,8 @@ export type NavigationTopBarProps = {
   style?: StyleProp<ViewStyle>;
   contentContainerStyle?: StyleProp<ViewStyle>;
   includeSafeAreaInset?: boolean;
-  /** Shared value for scroll offset to hide content on scroll */
-  scrollOffset?: SharedValue<number>;
+  /** Shared value for nav hidden offset (0 = fully visible, hideDistance = fully hidden) */
+  navHiddenOffset?: SharedValue<number>;
   /** Distance to scroll before content is fully hidden (default: 50) */
   hideDistance?: number;
 };
@@ -46,7 +46,7 @@ export function NavigationTopBar({
   style,
   contentContainerStyle,
   includeSafeAreaInset = true,
-  scrollOffset,
+  navHiddenOffset,
   hideDistance = 50,
 }: NavigationTopBarProps) {
   const insets = useSafeAreaInsets();
@@ -73,20 +73,20 @@ export function NavigationTopBar({
   }, [width, mainHeight, totalHeight]);
 
   // Animated styles for hiding content on scroll using Reanimated
+  // Uses navHiddenOffset which is calculated via useAnimatedReaction for better Safari/web compatibility
   const contentAnimatedStyle = useAnimatedStyle(() => {
-    if (!scrollOffset) {
-      return { opacity: 1, transform: [{ translateY: 0 }] };
-    }
+    'worklet';
+    const hiddenValue = navHiddenOffset?.value ?? 0;
     
     const opacity = interpolate(
-      scrollOffset.value,
+      hiddenValue,
       [0, hideDistance],
       [1, 0],
       Extrapolation.CLAMP
     );
     
     const translateY = interpolate(
-      scrollOffset.value,
+      hiddenValue,
       [0, hideDistance],
       [0, -10],
       Extrapolation.CLAMP
@@ -96,7 +96,7 @@ export function NavigationTopBar({
       opacity,
       transform: [{ translateY }],
     };
-  }, [scrollOffset, hideDistance]);
+  }, [navHiddenOffset, hideDistance]);
 
   const handleLogout = React.useCallback(async () => {
     setShowLogoutMenu(false);
