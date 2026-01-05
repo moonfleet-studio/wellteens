@@ -27,9 +27,9 @@
       "package": "com.moonfleet.wellteens"
     },
     "web": {
- "output": "server",
-      "bundler": "metro",
-      "favicon": "./assets/images/favicon.png"
+      "output": "static",
+      "favicon": "./assets/images/favicon.png",
+      "bundler": "metro"
     },
     "plugins": [
       "expo-router",
