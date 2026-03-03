@@ -49,7 +49,7 @@ export interface Article {
   title: string;
   author: string;
   lead: string;
-  photo: ArticlePhoto;
+  photo: ArticlePhoto | null;
   content: ArticleContent;
   updatedAt: string;
   createdAt: string;
@@ -91,6 +91,7 @@ export async function fetchArticleById(id: number): Promise<Article> {
  */
 export function getArticlePhotoUrl(article: Article): string {
   const baseUrl = 'https://wellteens.mfleet.io';
+  if (!article.photo) return '';
   return `${baseUrl}${article.photo.url}`;
 }
 
