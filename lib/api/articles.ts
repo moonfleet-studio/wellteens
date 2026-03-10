@@ -49,7 +49,7 @@ export interface Article {
   title: string;
   author: string;
   lead: string;
-  photo: ArticlePhoto;
+  photo: ArticlePhoto | null;
   content: ArticleContent;
   updatedAt: string;
   createdAt: string;
