@@ -41,8 +41,8 @@ export default function TabTwoScreen() {
     const trimmed = query.trim().toLowerCase();
     if (!trimmed) return videos;
     return videos.filter((video) => {
-      const title = video.title.toLowerCase();
-      const description = video.description.toLowerCase();
+      const title = (video.title || '').toLowerCase();
+      const description = (video.description || '').toLowerCase();
       return title.includes(trimmed) || description.includes(trimmed);
     });
   }, [query, videos]);
@@ -72,11 +72,11 @@ export default function TabTwoScreen() {
           {filteredVideos.map((video) => (
             <Card
               key={video.id}
-              image={getMediaUrl(video.thumbnail.url)}
+              image={video.thumbnail?.url ? getMediaUrl(video.thumbnail.url) : ''}
               label="VIDEO"
               chipVariant="videoCompact"
-              title={video.title}
-              description={video.description}
+              title={video.title || 'Untitled'}
+              description={video.description || ''}
               meta=""  // Duration not provided by API
               onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id.toString() } })}
             />

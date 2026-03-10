@@ -63,11 +63,11 @@ export async function fetchModuleById(id: number): Promise<Module> {
  */
 export function getModuleImage(module: Module): string {
   // Use first video thumbnail or article photo as fallback
-  if (module.videos.length > 0 && module.videos[0].thumbnail) {
+  if (module.videos?.length > 0 && module.videos[0]?.thumbnail?.url) {
     return module.videos[0].thumbnail.url;
   }
-  if (module.articles.length > 0 && module.articles[0].photo) {
-    return module.articles[0].photo;
+  if (module.articles?.length > 0 && module.articles[0]?.photo?.url) {
+    return module.articles[0].photo.url;
   }
   return 'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=900&q=80';
 }

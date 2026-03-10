@@ -49,8 +49,8 @@ export default function Articles() {
               image={getArticlePhotoUrl(article)}
               label="ARTICLE"
               chipVariant="article"
-              title={article.title}
-              description={article.lead}
+              title={article.title || 'Untitled'}
+              description={article.lead || ''}
               layout="article"
               onPress={() => router.push({ pathname: '/article/[id]', params: { id: article.id.toString() } })}
             />

@@ -78,11 +78,11 @@ export default function TabTwoScreen() {
               {videos.map((video) => (
                 <View style={styles.cardWrapper} key={video.id}>
                   <Card
-                    image={getMediaUrl(video.thumbnail.url)}
+                    image={video.thumbnail?.url ? getMediaUrl(video.thumbnail.url) : ''}
                     label="VIDEO"
                     chipVariant="videoCompact"
-                    title={video.title}
-                    description={video.description}
+                    title={video.title || 'Untitled'}
+                    description={video.description || ''}
                     meta=""  // Duration not provided by API
                     onPress={() => router.push({ pathname: '/video/[id]', params: { id: video.id.toString() } })}
                   />
@@ -102,8 +102,8 @@ export default function TabTwoScreen() {
                     image={getArticlePhotoUrl(article)}
                     label="ARTICLE"
                     chipVariant="article"
-                    title={article.title}
-                    description={article.lead}
+                    title={article.title || 'Untitled'}
+                    description={article.lead || ''}
                     layout="article"
                     onPress={() => router.push({ pathname: '/article/[id]', params: { id: article.id.toString() } })}
                   />

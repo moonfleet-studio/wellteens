@@ -33,11 +33,12 @@ export default function Modules() {
       let sortedModules = modulesResponse.docs;
       
       // If user has journal entries, sort by mood match
-      if (journalResponse.docs.length > 0) {
+      if (journalResponse.docs.length > 0 && journalResponse.docs[0].mood) {
         const currentMoodValue = journalResponse.docs[0].mood.value;
         
         // Sort modules: put the closest mood match first, keep rest unchanged
         sortedModules = [...modulesResponse.docs].sort((a, b) => {
+          if (!a.mood || !b.mood) return 0;
           const diffA = Math.abs(a.mood.value - currentMoodValue);
           const diffB = Math.abs(b.mood.value - currentMoodValue);
           
@@ -77,8 +78,8 @@ export default function Modules() {
               image={getMediaUrl(getModuleImage(module))}
               label="MODULE"
               chipVariant="module"
-              title={module.name}
-              description={module.description}
+              title={module.name || 'Untitled Module'}
+              description={module.description || ''}
               layout="module"
               onPress={() => router.push({ pathname: '/module/[id]', params: { id: module.id.toString() } })}
             />

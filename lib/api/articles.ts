@@ -91,7 +91,7 @@ export async function fetchArticleById(id: number): Promise<Article> {
  */
 export function getArticlePhotoUrl(article: Article): string {
   const baseUrl = 'https://wellteens.mfleet.io';
-  return `${baseUrl}${article.photo.url}`;
+  return article.photo ? `${baseUrl}${article.photo.url}` : '';
 }
 
 /**
