@@ -53,14 +53,14 @@ export default function Journal() {
 
   const displayEntries = useMemo(() => {
     return journalEntries.map((entry) => {
-      const moodVariant = getMoodKey(entry.mood.value);
+      const moodVariant = entry.mood ? getMoodKey(entry.mood.value) : 'fine';
       return {
         id: entry.id.toString(),
         variant: moodVariant,
-        chipLabel: entry.mood.name.toUpperCase(),
-        title: entry.title,
-        date: new Date(entry.createdAt).toLocaleDateString(),
-        body: entry.description,
+        chipLabel: entry.mood ? entry.mood.name.toUpperCase() : 'UNKNOWN',
+        title: entry.title || 'Untitled',
+        date: entry.createdAt ? new Date(entry.createdAt).toLocaleDateString() : '',
+        body: entry.description || '',
       };
     });
   }, [journalEntries]);
@@ -71,11 +71,11 @@ export default function Journal() {
       // Convert API entry to legacy format for the drawer
       openEditJournalEntry({
         id: entry.id.toString(),
-        title: entry.title,
-        body: entry.description,
-        moodValue: entry.mood.value,
-        moodLabel: entry.mood.name,
-        date: new Date(entry.createdAt).toLocaleDateString(),
+        title: entry.title || 'Untitled',
+        body: entry.description || '',
+        moodValue: entry.mood?.value ?? 2,
+        moodLabel: entry.mood?.name ?? 'Fine',
+        date: entry.createdAt ? new Date(entry.createdAt).toLocaleDateString() : '',
       });
     }
   };

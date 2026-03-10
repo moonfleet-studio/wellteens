@@ -7,10 +7,17 @@ import CustomTabBar from '@/components/ui/custom-tabbar';
 import { JournalEntryForm } from '@/components/ui/journal-entry-form';
 import { MoodDrawer } from '@/components/ui/mood-drawer';
 import { Colors } from '@/constants/theme';
+import { useAuth } from '@/context/AuthContext';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 function TabNavigator({ colorScheme }: { colorScheme: 'light' | 'dark' | undefined }) {
   const { isMoodDrawerOpen } = useMoodDrawer();
+  const { isAuthenticated } = useAuth();
+
+  // Don't render tabs if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <Tabs

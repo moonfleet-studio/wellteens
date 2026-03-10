@@ -7,21 +7,21 @@ import { fetchJournalEntries, type JournalEntry as ApiJournalEntry } from '@/lib
 function convertApiEntryToLegacy(apiEntry: ApiJournalEntry): JournalEntry {
   return {
     id: apiEntry.id.toString(),
-    title: apiEntry.title,
-    body: apiEntry.description,
-    date: new Date(apiEntry.createdAt).toLocaleDateString('en-GB', {
+    title: apiEntry.title || 'Untitled',
+    body: apiEntry.description || '',
+    date: apiEntry.createdAt ? new Date(apiEntry.createdAt).toLocaleDateString('en-GB', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
-    }).replace(/\//g, '.'),
-    moodValue: apiEntry.mood.value,
-    moodLabel: apiEntry.mood.name,
+    }).replace(/\//g, '.') : '',
+    moodValue: apiEntry.mood?.value ?? 2,
+    moodLabel: apiEntry.mood?.name ?? 'Fine',
   };
 }
 
 function apiEntriesToMoodHistory(entries: ApiJournalEntry[]): MoodHistoryPoint[] {
   // First sort by createdAt timestamp (oldest to newest)
-  const sortedEntries = [...entries].sort((a, b) => 
+  const sortedEntries = [...entries].filter(entry => entry.mood && entry.createdAt).sort((a, b) => 
     new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
   

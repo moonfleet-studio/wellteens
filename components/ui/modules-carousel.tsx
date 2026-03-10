@@ -58,8 +58,8 @@ export function ModulesCarousel() {
         renderItem={(item) => (
           <Card
             image={getMediaUrl(getModuleImage(item))}
-            title={item.name}
-            description={item.description}
+            title={item.name || 'Untitled Module'}
+            description={item.description || ''}
             label="MODULE"
             chipVariant="module"
             layout='module'

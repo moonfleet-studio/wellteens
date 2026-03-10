@@ -5,7 +5,7 @@ import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { ThemedText } from '@/components/themed-text';
 import { Card } from '@/components/ui/card';
 import TabScreen from '@/components/ui/tab-screen';
-import { fetchArticles, type Article } from '@/lib/api/articles';
+import { fetchArticles, getArticlePhotoUrl, type Article } from '@/lib/api/articles';
 
 export default function Articles() {
   const router = useRouter();
@@ -46,11 +46,11 @@ export default function Articles() {
           {articles.map((article) => (
             <Card
               key={article.id}
-              image={article.photo}
+              image={getArticlePhotoUrl(article)}
               label="ARTICLE"
               chipVariant="article"
-              title={article.title}
-              description={article.lead}
+              title={article.title || 'Untitled'}
+              description={article.lead || ''}
               layout="article"
               onPress={() => router.push({ pathname: '/article/[id]', params: { id: article.id.toString() } })}
             />

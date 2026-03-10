@@ -23,6 +23,25 @@ export interface ArticleContent {
 }
 
 /**
+ * Photo/Media object from API
+ */
+export interface ArticlePhoto {
+  id: number;
+  alt: string;
+  url: string;
+  thumbnailURL: string | null;
+  filename: string;
+  mimeType: string;
+  filesize: number;
+  width: number;
+  height: number;
+  focalX: number;
+  focalY: number;
+  updatedAt: string;
+  createdAt: string;
+}
+
+/**
  * Article from API
  */
 export interface Article {
@@ -30,7 +49,7 @@ export interface Article {
   title: string;
   author: string;
   lead: string;
-  photo: string;
+  photo: ArticlePhoto | null;
   content: ArticleContent;
   updatedAt: string;
   createdAt: string;
@@ -65,6 +84,14 @@ export async function fetchArticles(page: number = 1, limit: number = 10): Promi
  */
 export async function fetchArticleById(id: number): Promise<Article> {
   return apiFetch<Article>(`/api/articles/${id}`);
+}
+
+/**
+ * Get article photo URL with base URL
+ */
+export function getArticlePhotoUrl(article: Article): string {
+  const baseUrl = 'https://wellteens.mfleet.io';
+  return article.photo ? `${baseUrl}${article.photo.url}` : '';
 }
 
 /**

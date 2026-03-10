@@ -56,13 +56,17 @@ export function Card({
           style={styles.cardOverlay}
         >
           <View style={captionContainerStyle}>
-            <BlurView tint="light" intensity={8} style={styles.captionBlur} />
-            <LinearGradient
-              colors={["#FFFFFF", "rgba(255,255,255,0.5)"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 0, y: 1 }}
-              style={styles.captionGradient}
-            />
+            {/* Background layers - blur and gradient */}
+            <View style={styles.captionBackground}>
+              <BlurView tint="light" intensity={8} style={styles.captionBlur} />
+              <LinearGradient
+                colors={["#FFFFFF", "rgba(255,255,255,0.5)"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={styles.captionGradient}
+              />
+            </View>
+            {/* Content layer - rendered separately from blur */}
             <View
               style={[
                 styles.captionContent,
@@ -136,8 +140,12 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     height: 96,
     backgroundColor: "transparent",
+    position: "relative",
   },
-
+  captionBackground: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 0,
+  },
   captionBlur: {
     ...StyleSheet.absoluteFillObject,
   },
@@ -151,6 +159,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     gap: 1,
     justifyContent: "center",
+    zIndex: 1,
+    position: "relative",
   },
   captionContentArticle: {
     justifyContent: "flex-start",

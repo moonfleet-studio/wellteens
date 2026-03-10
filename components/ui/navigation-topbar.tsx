@@ -1,6 +1,7 @@
 import { LinearGradient as ExpoLinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import { LayoutChangeEvent, Modal, Pressable, StyleProp, StyleSheet, TouchableOpacity, View, ViewStyle } from 'react-native';
+import Animated, { Extrapolation, interpolate, SharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient, Path, Stop } from 'react-native-svg';
 
@@ -10,15 +11,34 @@ import LogoIcon from '@/components/ui/icons/Logo';
 import ProfileIcon from '@/components/ui/icons/Profile';
 import { useAuth } from '@/context/AuthContext';
 
-const VIEWBOX = { width: 393, height: 110 };
-const MAIN_PATH_D = 'M0 0H393V64.8225C393 64.8225 339.5 78 196.5 78C53.5 78 0 64.8225 0 64.8225V0Z';
-const SHADOW_PATH_D = 'M0 64.8225C0 64.8225 53.5 78 196.5 78C339.5 78 393 64.8225 393 64.8225V110H0Z';
+// Base content height (excluding safe area) - the minimum space for the navbar content
+const BASE_CONTENT_HEIGHT = 56;
+// The curve/arc portion at the bottom of the navbar
+const CURVE_HEIGHT = 20;
+// Shadow extension below the curve
+const SHADOW_HEIGHT = 32;
+
+// Generate SVG paths dynamically based on width and heights
+const generatePaths = (width: number, mainHeight: number, totalHeight: number) => {
+  const curveY = mainHeight - CURVE_HEIGHT;
+  const centerX = width / 2;
+  const curveControlOffset = width * 0.363; // ~143/393 ratio from original
+
+  return {
+    main: `M0 0H${width}V${curveY}C${width} ${curveY} ${centerX + curveControlOffset} ${mainHeight} ${centerX} ${mainHeight}C${centerX - curveControlOffset} ${mainHeight} 0 ${curveY} 0 ${curveY}V0Z`,
+    shadow: `M0 ${curveY}C0 ${curveY} ${centerX - curveControlOffset} ${mainHeight} ${centerX} ${mainHeight}C${centerX + curveControlOffset} ${mainHeight} ${width} ${curveY} ${width} ${curveY}V${totalHeight}H0Z`,
+  };
+};
 
 export type NavigationTopBarProps = {
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   contentContainerStyle?: StyleProp<ViewStyle>;
   includeSafeAreaInset?: boolean;
+  /** Shared value for nav hidden offset (0 = fully visible, hideDistance = fully hidden) */
+  navHiddenOffset?: SharedValue<number>;
+  /** Distance to scroll before content is fully hidden (default: 50) */
+  hideDistance?: number;
 };
 
 export function NavigationTopBar({
@@ -26,6 +46,8 @@ export function NavigationTopBar({
   style,
   contentContainerStyle,
   includeSafeAreaInset = true,
+  navHiddenOffset,
+  hideDistance = 50,
 }: NavigationTopBarProps) {
   const insets = useSafeAreaInsets();
   const [width, setWidth] = React.useState(0);
@@ -39,20 +61,49 @@ export function NavigationTopBar({
     setWidth(event.nativeEvent.layout.width);
   }, []);
 
-  const svgHeight = React.useMemo(() => {
-    if (!width) {
-      return VIEWBOX.height;
-    }
-    const calculated = (VIEWBOX.height / VIEWBOX.width) * width;
-    return Math.min(calculated, 105);
-  }, [width]);
+  // Calculate heights based on safe area
+  const safeAreaTop = includeSafeAreaInset ? insets.top : 0;
+  const mainHeight = safeAreaTop + BASE_CONTENT_HEIGHT + CURVE_HEIGHT;
+  const totalHeight = mainHeight + SHADOW_HEIGHT;
+
+  // Generate paths dynamically based on actual width
+  const paths = React.useMemo(() => {
+    if (!width) return null;
+    return generatePaths(width, mainHeight, totalHeight);
+  }, [width, mainHeight, totalHeight]);
+
+  // Animated styles for hiding content on scroll using Reanimated
+  // Uses navHiddenOffset which is calculated via useAnimatedReaction for better Safari/web compatibility
+  const contentAnimatedStyle = useAnimatedStyle(() => {
+    'worklet';
+    const hiddenValue = navHiddenOffset?.value ?? 0;
+    
+    const opacity = interpolate(
+      hiddenValue,
+      [0, hideDistance],
+      [1, 0],
+      Extrapolation.CLAMP
+    );
+    
+    const translateY = interpolate(
+      hiddenValue,
+      [0, hideDistance],
+      [0, -10],
+      Extrapolation.CLAMP
+    );
+
+    return {
+      opacity,
+      transform: [{ translateY }],
+    };
+  }, [navHiddenOffset, hideDistance]);
 
   const handleLogout = React.useCallback(async () => {
     setShowLogoutMenu(false);
     await logout();
   }, [logout]);
 
-  const paddingTop = (includeSafeAreaInset ? insets.top : 0) + 12;
+  const paddingTop = safeAreaTop + 8;
   const defaultContent = (
     <View style={styles.defaultRow}>
       <LogoIcon variant="gradient" width={36} height={16} />
@@ -76,44 +127,49 @@ export function NavigationTopBar({
 
   return (
     <View style={[styles.container, style]} onLayout={handleLayout}>
-      <View style={[styles.svgWrapper, { height: svgHeight }]}>
-        <Svg
-          pointerEvents="none"
-          width="100%"
-          height="100%"
-          preserveAspectRatio="none"
-          viewBox={`0 0 ${VIEWBOX.width} ${VIEWBOX.height}`}
-        >
-          <Defs>
-            <LinearGradient
-              id={gradientId}
-              x1={VIEWBOX.width / 2}
-              y1={0}
-              x2={VIEWBOX.width / 2}
-              y2={78}
-              gradientUnits="userSpaceOnUse"
-            >
-              <Stop offset="0" stopColor="#1590C6" />
-              <Stop offset="0.73" stopColor="#12A5E5" />
-              <Stop offset="1" stopColor="#12A5E5" stopOpacity={0.77} />
-            </LinearGradient>
-            <LinearGradient
-              id={shadowGradientId}
-              x1={VIEWBOX.width / 2}
-              y1={64.8225}
-              x2={VIEWBOX.width / 2}
-              y2={VIEWBOX.height}
-              gradientUnits="userSpaceOnUse"
-            >
-              <Stop offset="0" stopColor="#0F6FAF" stopOpacity={0.25} />
-              <Stop offset="1" stopColor="#0F6FAF" stopOpacity={0} />
-            </LinearGradient>
-          </Defs>
-          <Path d={SHADOW_PATH_D} fill={`url(#${shadowGradientId})`} />
-          <Path d={MAIN_PATH_D} fill={`url(#${gradientId})`} />
-        </Svg>
+      {paths && (
+        <View style={[styles.svgWrapper, { height: totalHeight }]}>
+          <Svg
+            pointerEvents="none"
+            width={width}
+            height={totalHeight}
+            viewBox={`0 0 ${width} ${totalHeight}`}
+          >
+            <Defs>
+              <LinearGradient
+                id={gradientId}
+                x1={width / 2}
+                y1={0}
+                x2={width / 2}
+                y2={mainHeight}
+                gradientUnits="userSpaceOnUse"
+              >
+                <Stop offset="0" stopColor="#1590C6" />
+                <Stop offset="0.73" stopColor="#12A5E5" />
+                <Stop offset="1" stopColor="#12A5E5" stopOpacity={0.77} />
+              </LinearGradient>
+              <LinearGradient
+                id={shadowGradientId}
+                x1={width / 2}
+                y1={mainHeight - CURVE_HEIGHT}
+                x2={width / 2}
+                y2={totalHeight}
+                gradientUnits="userSpaceOnUse"
+              >
+                <Stop offset="0" stopColor="#0F6FAF" stopOpacity={0.25} />
+                <Stop offset="1" stopColor="#0F6FAF" stopOpacity={0} />
+              </LinearGradient>
+            </Defs>
+            <Path d={paths.shadow} fill={`url(#${shadowGradientId})`} />
+            <Path d={paths.main} fill={`url(#${gradientId})`} />
+          </Svg>
+        </View>
+      )}
+      <View style={[styles.content, { paddingTop }, contentContainerStyle]}>
+        <Animated.View style={contentAnimatedStyle}>
+          {renderedContent}
+        </Animated.View>
       </View>
-      <View style={[styles.content, { paddingTop }, contentContainerStyle]}>{renderedContent}</View>
 
       {/* Logout Menu Modal */}
       <Modal
@@ -145,7 +201,6 @@ export function NavigationTopBar({
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    maxHeight: 105,
     position: 'relative',
     overflow: 'visible',
   },
@@ -158,9 +213,8 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingHorizontal: 24,
-    paddingBottom: 12,
-    minHeight: 66,
-    justifyContent: 'flex-end',
+    paddingBottom: 16,
+    justifyContent: 'center',
   },
   defaultRow: {
     width: '100%',

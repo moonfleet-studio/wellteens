@@ -45,6 +45,7 @@ export default function TabScreen({
   const scrollRef = useAnimatedRef<Animated.ScrollView>();
   const scrollOffset = useScrollOffset(scrollRef);
   const navHiddenOffset = useSharedValue(0);
+  const lastStableScrollOffset = useSharedValue(0);
   const headerHeight = headerImage ? HEADER_HEIGHT : NAVIGATION_BAR_HEIGHT;
   const safeHeaderHeight = headerHeight > 0 ? headerHeight : 1;
 
@@ -79,14 +80,60 @@ export default function TabScreen({
       {footer}
     </ThemedView>
   );
+
+  // Track navbar visibility based on scroll direction
+  // Ignore rubber-banding (bounce) at top and bottom edges on Safari/iOS
   useAnimatedReaction(
     () => scrollOffset.value,
     (current, previous) => {
+      'worklet';
       if (previous === null || previous === undefined) {
         navHiddenOffset.value = 0;
+        lastStableScrollOffset.value = 0;
         return;
       }
+
+      // Ignore rubber-banding at the top (negative scroll values)
+      if (current < 0 || previous < 0) {
+        return;
+      }
+
       const diff = current - previous;
+
+      // Add a small threshold to ignore tiny bounce movements
+      if (Math.abs(diff) < 0.5) {
+        return;
+      }
+
+      // When at the very top, always show the navbar
+      if (current <= 5) {
+        navHiddenOffset.value = 0;
+        lastStableScrollOffset.value = current;
+        return;
+      }
+
+      // Detect bottom rubber-banding: if we were scrolling down and suddenly 
+      // the scroll position decreases without user intent (bounce back from bottom)
+      // We detect this by checking if current < lastStableScrollOffset while scrolling "up"
+      const isScrollingUp = diff < 0;
+      
+      if (isScrollingUp) {
+        // If the current position is higher than last stable position,
+        // this is likely a bottom bounce - ignore it
+        if (current > lastStableScrollOffset.value - NAVIGATION_BAR_HEIGHT) {
+          // Check if we bounced back from a higher position (bottom bounce)
+          // Only update navbar if we've scrolled up significantly from last stable point
+          const scrolledUpAmount = lastStableScrollOffset.value - current;
+          if (scrolledUpAmount < NAVIGATION_BAR_HEIGHT) {
+            // Not enough intentional scroll up, could be bounce - ignore
+            return;
+          }
+        }
+      } else {
+        // Scrolling down - update the last stable position
+        lastStableScrollOffset.value = Math.max(lastStableScrollOffset.value, current);
+      }
+
       const next = Math.min(Math.max(navHiddenOffset.value + diff, 0), NAVIGATION_BAR_HEIGHT);
       navHiddenOffset.value = next;
     }
@@ -98,7 +145,7 @@ export default function TabScreen({
   });
   const navigationBar = (
     <Animated.View style={[styles.navBarWrapper, navBarAnimatedStyle]}>
-      <NavigationTopBar />
+      <NavigationTopBar navHiddenOffset={navHiddenOffset} hideDistance={NAVIGATION_BAR_HEIGHT} />
     </Animated.View>
   );
 
