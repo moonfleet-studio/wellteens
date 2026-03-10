@@ -7,6 +7,8 @@ interface WelcomeSplashContainerProps extends SvgProps {
 }
 
 export default function WelcomeSplashContainer({ width = '100%', height, ...props }: WelcomeSplashContainerProps) {
+  const gradientId = React.useId();
+  
   return (
     <Svg
       width={width}
@@ -18,11 +20,11 @@ export default function WelcomeSplashContainer({ width = '100%', height, ...prop
     >
       <Path
         d="M0 -9H393V491.651C393 491.651 339.5 556 196.5 556C53.5 556 0 491.651 0 491.651V-9Z"
-        fill="url(#paint0_linear_4_237)"
+        fill={`url(#${gradientId})`}
       />
       <Defs>
         <LinearGradient
-          id="paint0_linear_4_237"
+          id={gradientId}
           x1={196.5}
           y1={-9}
           x2={196.5}

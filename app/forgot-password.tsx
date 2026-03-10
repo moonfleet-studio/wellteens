@@ -2,7 +2,7 @@ import { AuthHeader } from '@/components/auth/AuthHeader';
 import { ThemedText } from '@/components/themed-text';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/context/AuthContext';
+import { forgotPassword } from '@/lib/api/auth';
 import { ApiError } from '@/lib/api/client';
 import { router } from 'expo-router';
 import { useState } from 'react';
@@ -18,18 +18,17 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function LoginScreen() {
-  const { login } = useAuth();
+export default function ForgotPasswordScreen() {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const isFormValid = email.trim() && password.trim();
+  const isFormValid = email.trim();
 
-  const handleLogin = async () => {
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter both email and password');
+  const handleSubmit = async () => {
+    if (!email.trim()) {
+      setError('Please enter your email');
       return;
     }
 
@@ -37,12 +36,12 @@ export default function LoginScreen() {
     setIsLoading(true);
 
     try {
-      await login({ email: email.trim(), password });
-      router.replace('/(tabs)');
+      await forgotPassword(email.trim());
+      setSuccess(true);
     } catch (err) {
-      console.error('Login error:', err);
+      console.error('Forgot password error:', err);
       if (err instanceof ApiError) {
-        setError(err.message || 'Login failed. Please check your credentials.');
+        setError(err.message || 'Failed to send reset email. Please try again.');
       } else {
         const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
         setError(`${errorMessage}. Please try again.`);
@@ -51,6 +50,38 @@ export default function LoginScreen() {
       setIsLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <SafeAreaView style={styles.container} edges={['bottom']}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <AuthHeader />
+
+          <View style={styles.formContainer}>
+            <View style={styles.successContainer}>
+              <ThemedText style={styles.successTitle}>Check your email</ThemedText>
+              <ThemedText style={styles.successMessage}>
+                We&apos;ve sent a password reset link to {email}. Please check your inbox and
+                follow the instructions to reset your password.
+              </ThemedText>
+            </View>
+
+            <Button onPress={() => router.push('/login')} block style={styles.backButton}>
+              <ThemedText style={styles.buttonText}>Back to login</ThemedText>
+            </Button>
+
+            <Text style={styles.footerCaption}>
+              EU Programme Erasmus+ KA2 Cooperation Partnership YOUTH{'\n'}
+              Reference n. 2023-2-IT03-KA220-YOU-000176636
+            </Text>
+          </View>
+        </ScrollView>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.container} edges={['bottom']}>
@@ -65,8 +96,12 @@ export default function LoginScreen() {
         >
           <AuthHeader />
 
-          {/* Form section */}
           <View style={styles.formContainer}>
+            <ThemedText style={styles.title}>Forgot password</ThemedText>
+            <ThemedText style={styles.subtitle}>
+              Enter your email address and we&apos;ll send you a link to reset your password.
+            </ThemedText>
+
             <Input
               label="Email"
               value={email}
@@ -77,28 +112,8 @@ export default function LoginScreen() {
               autoCapitalize="none"
               autoCorrect={false}
               editable={!isLoading}
+              style={styles.emailInput}
             />
-
-            <Input
-              label="Password"
-              value={password}
-              onChangeText={setPassword}
-              placeholder="Enter your password"
-              variant="outlined"
-              secureTextEntry
-              autoCapitalize="none"
-              autoCorrect={false}
-              editable={!isLoading}
-              style={styles.passwordInput}
-            />
-
-            <TouchableOpacity
-              accessibilityRole="button"
-              onPress={() => router.push('/forgot-password' as never)}
-              style={styles.forgotPasswordLink}
-            >
-              <ThemedText style={styles.forgotPasswordText}>Forgot password?</ThemedText>
-            </TouchableOpacity>
 
             {error && (
               <View style={styles.errorContainer}>
@@ -107,26 +122,26 @@ export default function LoginScreen() {
             )}
 
             <Button
-              onPress={handleLogin}
+              onPress={handleSubmit}
               block
               disabled={isLoading || !isFormValid}
-              style={styles.loginButton}
+              style={styles.submitButton}
             >
               {isLoading ? (
                 <ActivityIndicator color="#1C1C1C" size="small" />
               ) : (
-                <ThemedText style={styles.buttonText}>Login</ThemedText>
+                <ThemedText style={styles.buttonText}>Send reset link</ThemedText>
               )}
             </Button>
 
             <TouchableOpacity
               accessibilityRole="button"
-              onPress={() => router.push('/register')}
-              style={styles.registerLink}
+              onPress={() => router.push('/login')}
+              style={styles.loginLinkContainer}
             >
-              <ThemedText style={styles.registerText}>
-                Don&apos;t have an account?{' '}
-                <ThemedText style={styles.registerTextBold}>Sign up</ThemedText>
+              <ThemedText style={styles.loginLinkText}>
+                Remember your password?{' '}
+                <ThemedText style={styles.loginLinkAction}>Log in</ThemedText>
               </ThemedText>
             </TouchableOpacity>
 
@@ -158,17 +173,20 @@ const styles = StyleSheet.create({
     paddingTop: 32,
     paddingBottom: 24,
   },
-  passwordInput: {
-    marginTop: 16,
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1C1C1C',
+    marginBottom: 8,
   },
-  forgotPasswordLink: {
-    alignSelf: 'flex-end',
-    marginTop: 12,
-  },
-  forgotPasswordText: {
+  subtitle: {
     fontSize: 14,
-    color: '#2563EB',
-    fontWeight: '600',
+    color: '#6B7280',
+    marginBottom: 24,
+    lineHeight: 20,
+  },
+  emailInput: {
+    marginTop: 8,
   },
   errorContainer: {
     backgroundColor: '#FEE2E2',
@@ -180,7 +198,7 @@ const styles = StyleSheet.create({
     color: '#DC2626',
     fontSize: 14,
   },
-  loginButton: {
+  submitButton: {
     marginTop: 24,
   },
   buttonText: {
@@ -188,17 +206,34 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1C1C1C',
   },
-  registerLink: {
+  loginLinkContainer: {
     marginTop: 16,
     alignItems: 'center',
   },
-  registerText: {
+  loginLinkText: {
+    color: '#6B7280',
+    fontSize: 14,
+  },
+  loginLinkAction: {
+    color: '#2563EB',
+    fontWeight: '600',
+  },
+  successContainer: {
+    paddingVertical: 24,
+  },
+  successTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#1C1C1C',
+    marginBottom: 16,
+  },
+  successMessage: {
     fontSize: 14,
     color: '#6B7280',
+    lineHeight: 20,
   },
-  registerTextBold: {
-    fontWeight: '600',
-    color: '#2563EB',
+  backButton: {
+    marginTop: 24,
   },
   footerCaption: {
     color: '#000',
