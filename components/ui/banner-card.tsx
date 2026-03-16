@@ -3,12 +3,13 @@ import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
   ImageBackground,
-  Platform,
   StyleProp,
   StyleSheet,
   View,
   ViewStyle,
 } from "react-native";
+
+import { Fonts } from "@/constants/theme";
 
 import { ThemedText } from "@/components/themed-text";
 
@@ -79,9 +80,6 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     lineHeight: 24,
     textAlign: "center",
-    ...Platform.select({
-      web: { fontFamily: "Montserrat, sans-serif" },
-      default: { fontFamily: "Montserrat_600SemiBold" },
-    }),
+    fontFamily: Fonts.rounded,
   },
 });
