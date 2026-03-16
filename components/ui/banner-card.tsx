@@ -2,12 +2,12 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
 import {
-    ImageBackground,
-    Platform,
-    StyleProp,
-    StyleSheet,
-    View,
-    ViewStyle,
+  ImageBackground,
+  Platform,
+  StyleProp,
+  StyleSheet,
+  View,
+  ViewStyle,
 } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
